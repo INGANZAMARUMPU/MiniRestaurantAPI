@@ -26,10 +26,12 @@ class OffreAdmin(admin.ModelAdmin):
 	ordering = ('produit', 'fournisseur', "prix")
 
 class StockAdmin(admin.ModelAdmin):
-	list_display = ("produit", "quantite_initiale", "quantite_actuelle", "offre", "somme", "personnel", "date", "expiration_date")
-	list_filter = ("produit", "quantite_initiale", "quantite_actuelle", "offre", "personnel", "date", "expiration_date")
-	search_field = ("produit", "quantite_initiale", "quantite_actuelle", "offre", "personnel", "date", "expiration_date")
-	ordering = ("produit", "quantite_initiale", "quantite_actuelle", "offre", "personnel", "date", "expiration_date")
+	list_display = ("produit", "quantite_initiale", "quantite_actuelle", "offre", "somme", "date", "expiration_date")
+	list_filter = ("produit", "quantite_initiale", "quantite_actuelle", "offre", "date", "expiration_date")
+	search_field = ("produit", "quantite_initiale", "quantite_actuelle", "offre", "date", "expiration_date")
+	ordering = ("produit", "quantite_initiale", "quantite_actuelle", "offre", "date", "expiration_date")
+
+	select_related = True
 
 	def somme(self, obj):
 		return obj.somme()
@@ -47,16 +49,20 @@ class RecetteAdmin(admin.ModelAdmin):
 	ordering = ("nom", "image", "details")
 
 class CommandeAdmin(admin.ModelAdmin):
-	list_display = ("table", "serveur", "date", "a_payer", "payee", "reste")
-	list_filter = ("table", "serveur", "date", "a_payer", "payee", "reste")
-	search_field = ("table", "serveur", "date", "a_payer", "payee", "reste")
-	ordering = ("table", "serveur", "date", "a_payer", "payee", "reste")
+	list_display = ("table", "serveur", "personnel", "date", "a_payer", "payee", "reste")
+	list_filter = ("table", "serveur", "personnel", "date", "a_payer", "payee", "reste")
+	search_field = ("table", "serveur", "personnel", "date", "a_payer", "payee", "reste")
+	ordering = ("table", "serveur", "personnel", "date", "a_payer", "payee", "reste")
+
+	select_related = True
 
 class PaiementAdmin(admin.ModelAdmin):
 	list_display = ("commande","somme","date")
 	list_filter = ("commande","somme","date")
 	search_field = ("commande","somme","date")
 	ordering = ("commande","somme","date")
+
+	select_related = True
 
 class PlaceAdmin(admin.ModelAdmin):
 	list_display = ("nom",)
@@ -70,6 +76,17 @@ class DetailCommandeAdmin(admin.ModelAdmin):
 	search_field = ("recette", "commande", "quantite", "somme", "date")
 	ordering = ("recette", "commande", "quantite", "somme", "date")
 
+	select_related = True
+
+@admin.register(DetailStock)
+class DetailStockAdmin(admin.ModelAdmin):
+	list_display = "stock", "quantite", "personnel", "date"
+	list_filter = "stock", "quantite", "personnel", "date"
+	search_field = "stock", "quantite", "personnel", "date"
+	ordering = "stock", "quantite", "personnel", "date"
+
+	select_related = True
+
 admin.site.register(Produit, ProduitAdmin)
 admin.site.register(Stock, StockAdmin)
 admin.site.register(Fournisseur, FournisseurAdmin)
@@ -82,4 +99,3 @@ admin.site.register(Personnel, PersonnelAdmin)
 admin.site.register(Serveur, ServeurAdmin)
 admin.site.register(Table)
 admin.site.register(PrixRecette)
-admin.site.register(DetailStock)

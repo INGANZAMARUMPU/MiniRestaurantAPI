@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from datetime import datetime, timedelta, date
 
 class Personnel(models.Model):
-	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	user = models.OneToOneField(User, null=True, on_delete=models.SET_NULL)
 	avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
 	tel = models.CharField(verbose_name='numero de télephone', max_length=24)
 
@@ -53,6 +53,7 @@ class DetailStock(models.Model):
 	quantite = models.FloatField()
 	date = models.DateTimeField(blank=True, default=timezone.now)
 	motif = models.CharField(max_length=64, blank=True, null=True)
+	personnel = models.ForeignKey("Personnel", null=True, on_delete=models.PROTECT)
 
 	def save(self, *args, **kwargs):
 		stock = self.stock
@@ -72,7 +73,6 @@ class Stock(models.Model):
 	date = models.DateField(blank=True, default=timezone.now)
 	expiration = models.PositiveIntegerField(default=7, null=True, blank=True, verbose_name="délais de validité(en jours)")
 	expiration_date = models.DateField(editable=False, null=True)
-	personnel = models.ForeignKey("Personnel", null=True, on_delete=models.SET_NULL)
 	# is_valid = models.BooleanField(default=True)
 
 	def __str__(self):
@@ -178,6 +178,7 @@ class Commande(models.Model):
 	payee = models.FloatField(default=0, blank=True)
 	reste = models.FloatField(default=0, blank=True)
 	serveur = models.ForeignKey(Serveur, blank=True, null=True, on_delete=models.SET_NULL)
+	personnel = models.ForeignKey("Personnel", null=True, on_delete=models.PROTECT)
 
 	def save(self, *args, **kwargs):
 		self.reste = self.a_payer-self.payee
