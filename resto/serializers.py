@@ -1,5 +1,6 @@
 from .models import *
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class ProduitSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -44,7 +45,7 @@ class FournisseurSerializer(serializers.ModelSerializer):
 class RecetteSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Recette
-		fields = "__all__"
+		fields = "id","nom", "image", "disponible", "details", "prix"
 
 class DetailCommandeSerializer(serializers.ModelSerializer):
 	nom = serializers.SerializerMethodField()
@@ -61,3 +62,23 @@ class CommandeSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Commande
 		fields = "__all__"
+
+class TokenPairSerializer(TokenObtainPairSerializer):
+	
+	# @classmethod
+	# def get_token(cls, user):
+	# 	token = super(TokenPairSerializer, cls).get_token(user)
+	# 	token['services'] = [group.name for group in user.groups.all()]
+	# 	try:
+	# 		token['username'] = user.username
+	# 		token['phone'] = user.profile.phone
+	# 		token['email'] = user.email
+	# 	except Exception as e:
+	# 		print(e)
+	# 	return token
+
+	def validate(self, attrs):
+		data = super(TokenPairSerializer, self).validate(attrs)
+		data['services'] = [group.name for group in self.user.groups.all()]
+		data['is_admin'] = self.user.is_superuser
+		return data

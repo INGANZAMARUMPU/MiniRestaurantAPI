@@ -5,11 +5,15 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from django.db.models import Count, F
 
 from .models import *
 from .serializers import *
+
+class TokenPairView(TokenObtainPairView):
+	serializer_class = TokenPairSerializer
 
 class ProduitViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
@@ -32,7 +36,7 @@ class TableViewset(viewsets.ModelViewSet):
 class DetailStockViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
 	permission_classes = [IsAuthenticated]
-	queryset = DetailStock.objects.all()
+	queryset = DetailStock.objects.select_related("stock", "personnel")
 	serializer_class = DetailStockSerializer
 
 class OffreViewset(viewsets.ModelViewSet):
@@ -44,13 +48,13 @@ class OffreViewset(viewsets.ModelViewSet):
 class PaiementViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
 	permission_classes = [IsAuthenticated]
-	queryset = Paiement.objects.all()
+	queryset = Paiement.objects.select_related("produit", "fournisseur")
 	serializer_class = PaiementSerializer
 
 class StockViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
 	permission_classes = [IsAuthenticated]
-	queryset = Stock.objects.all()
+	queryset = Stock.objects.select_related("produit", "offre")
 	serializer_class = StockSerializer
 
 	@action(methods=['GET'], detail=False,
@@ -75,7 +79,7 @@ class RecetteViewset(viewsets.ModelViewSet):
 class CommandeViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
 	permission_classes = [IsAuthenticated]
-	queryset = Commande.objects.all()
+	queryset = Commande.objects.select_related("table", "serveur", "personnel")
 	serializer_class = CommandeSerializer
 
 class ChartRecetteViewset(viewsets.ViewSet):
