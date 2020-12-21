@@ -6,6 +6,11 @@ from .views import *
 
 router = routers.DefaultRouter()
 router.register("produit", ProduitViewset)
+router.register("serveur", ServeurViewset)
+router.register("table", TableViewset)
+router.register("detailstock", DetailStockViewset)
+router.register("offre", OffreViewset)
+router.register("paiement", PaiementViewset)
 router.register("stock", StockViewset)
 router.register("fournisseur", FournisseurViewset)
 router.register("recette", RecetteViewset)

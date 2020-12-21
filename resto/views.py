@@ -17,6 +17,36 @@ class ProduitViewset(viewsets.ModelViewSet):
 	queryset = Produit.objects.all()
 	serializer_class = ProduitSerializer
 
+class ServeurViewset(viewsets.ModelViewSet):
+	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	permission_classes = [IsAuthenticated]
+	queryset = Serveur.objects.all()
+	serializer_class = ServeurSerializer
+
+class TableViewset(viewsets.ModelViewSet):
+	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	permission_classes = [IsAuthenticated]
+	queryset = Table.objects.all()
+	serializer_class = TableSerializer
+
+class DetailStockViewset(viewsets.ModelViewSet):
+	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	permission_classes = [IsAuthenticated]
+	queryset = DetailStock.objects.all()
+	serializer_class = DetailStockSerializer
+
+class OffreViewset(viewsets.ModelViewSet):
+	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	permission_classes = [IsAuthenticated]
+	queryset = Offre.objects.all()
+	serializer_class = OffreSerializer
+
+class PaiementViewset(viewsets.ModelViewSet):
+	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	permission_classes = [IsAuthenticated]
+	queryset = Paiement.objects.all()
+	serializer_class = PaiementSerializer
+
 class StockViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
 	permission_classes = [IsAuthenticated]

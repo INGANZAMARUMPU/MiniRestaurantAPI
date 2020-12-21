@@ -6,6 +6,31 @@ class ProduitSerializer(serializers.ModelSerializer):
 		model = Produit
 		fields = "__all__"
 
+class ServeurSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Serveur
+		fields = "__all__"
+
+class TableSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Table
+		fields = "__all__"
+
+class DetailStockSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = DetailStock
+		fields = "__all__"
+
+class OffreSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Offre
+		fields = "__all__"
+
+class PaiementSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Paiement
+		fields = "__all__"
+
 class StockSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Stock
@@ -19,6 +44,7 @@ class FournisseurSerializer(serializers.ModelSerializer):
 class RecetteSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Recette
+		fields = "__all__"
 
 class DetailCommandeSerializer(serializers.ModelSerializer):
 	nom = serializers.SerializerMethodField()
@@ -34,4 +60,4 @@ class CommandeSerializer(serializers.ModelSerializer):
 	details = DetailCommandeSerializer(many=True, read_only=True)
 	class Meta:
 		model = Commande
-		fields = ("table", "details", "tel", "date", "servi", "commandee", "pret", "a_payer", "payee", "reste", "serveur")
+		fields = "__all__"
