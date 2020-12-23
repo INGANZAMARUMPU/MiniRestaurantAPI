@@ -60,6 +60,7 @@ class DetailCommandeSerializer(serializers.ModelSerializer):
 class CommandeSerializer(serializers.ModelSerializer):
 	details = DetailCommandeSerializer(many=True, read_only=True)
 	a_payer = serializers.SerializerMethodField()
+	serveur_name = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Commande
@@ -67,6 +68,9 @@ class CommandeSerializer(serializers.ModelSerializer):
 
 	def get_a_payer(self, obj):
 		return obj.a_payer()
+
+	def get_serveur_name(self, obj):
+		return str(obj.serveur)
 
 	def create(self, validated_data):
 		instance, created = Commande.objects.get_or_create(**validated_data)
