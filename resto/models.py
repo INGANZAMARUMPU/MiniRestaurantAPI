@@ -123,21 +123,6 @@ class Fournisseur(models.Model):
 	def __str__(self):
 		return f"{self.nom}"
 
-class Recette(models.Model):
-	nom = models.CharField(max_length=64)
-	image = models.ImageField(upload_to="recettes/")
-	disponible = models.BooleanField(default=True)
-	details = models.URLField(null=True, blank=True)
-
-	def __str__(self):
-		return f"{self.nom}"
-
-	def prix(self):
-		try:
-			return PrixRecette.objects.filter(recette=self).last().prix
-		except:
-			return 0
-
 class PrixRecette(models.Model):
 	recette = models.ForeignKey("Recette", null=True, on_delete=models.SET_NULL)
 	prix = models.PositiveIntegerField()
@@ -145,6 +130,20 @@ class PrixRecette(models.Model):
 	
 	def __str__(self):
 		return f"{self.recette.nom} à {self.prix}"
+
+class Recette(models.Model):
+	nom = models.CharField(max_length=64)
+	image = models.ImageField(upload_to="recettes/")
+	disponible = models.BooleanField(default=True)
+	details = models.URLField(null=True, blank=True)
+	prix = models.FloatField()
+
+	def __str__(self):
+		return f"{self.nom}"
+
+	def save(self, *args, **kwargs):
+		super(Recette, self).save(*args, **kwargs)
+		PrixRecette(recette=self, prix=self.prix).save()
 
 class DetailCommande(models.Model):
 	commande = models.ForeignKey("Commande", null=True, on_delete=models.CASCADE, related_name='details')
@@ -154,18 +153,8 @@ class DetailCommande(models.Model):
 	date = models.DateTimeField(default=timezone.now)
 
 	def save(self, *args, **kwargs):
-		self.somme = self.prix() * self.quantite
-		if self.somme > 0:
-			super(DetailCommande, self).save(*args, **kwargs)
-		else:
-			raise Exception("La recette doit avoir un prix")
-
-	def prix(self):
-		try:
-			return PrixRecette.objects\
-			.filter(recette=self.recette).last().prix
-		except:
-			return 0
+		self.somme = self.recette.prix * self.quantite
+		super(DetailCommande, self).save(*args, **kwargs)
 
 	class Meta:
 		unique_together = ('commande','recette')
@@ -181,8 +170,8 @@ class Commande(models.Model):
 	# a_payer = models.FloatField(default=0, blank=True)
 	payee = models.FloatField(default=0, blank=True)
 	reste = models.FloatField(default=0, blank=True)
-	serveur = models.ForeignKey(Serveur, on_delete=models.PROTECT)
-	personnel = models.ForeignKey("Personnel", on_delete=models.PROTECT)
+	serveur = models.ForeignKey(Serveur, null=True, on_delete=models.SET_NULL)
+	personnel = models.ForeignKey("Personnel", null=True, on_delete=models.SET_NULL)
 
 	class Meta:
 		ordering = ("-id", )

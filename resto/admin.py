@@ -33,9 +33,6 @@ class StockAdmin(admin.ModelAdmin):
 
 	select_related = True
 
-	def somme(self, obj):
-		return obj.somme()
-
 class FournisseurAdmin(admin.ModelAdmin):
 	list_display = ('nom', 'adresse', 'tel')
 	list_filter = ('nom', 'adresse', 'tel')
