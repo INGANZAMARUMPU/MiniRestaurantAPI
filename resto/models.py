@@ -153,6 +153,20 @@ class DetailCommande(models.Model):
 	somme = models.PositiveIntegerField(editable=False, blank=True, verbose_name='à payer')
 	date = models.DateTimeField(default=timezone.now)
 
+	def save(self, *args, **kwargs):
+		self.somme = self.prix() * self.quantite
+		if self.somme > 0:
+			super(DetailCommande, self).save(*args, **kwargs)
+		else:
+			raise Exception("La recette doit avoir un prix")
+
+	def prix(self):
+		try:
+			return PrixRecette.objects\
+			.filter(recette=self.recette).last().prix
+		except:
+			return 0
+
 	class Meta:
 		unique_together = ('commande','recette')
 		ordering = ['date']
@@ -167,21 +181,24 @@ class Commande(models.Model):
 	# a_payer = models.FloatField(default=0, blank=True)
 	payee = models.FloatField(default=0, blank=True)
 	reste = models.FloatField(default=0, blank=True)
-	serveur = models.ForeignKey(Serveur, blank=True, null=True, on_delete=models.SET_NULL)
-	personnel = models.ForeignKey("Personnel", null=True, on_delete=models.PROTECT)
+	serveur = models.ForeignKey(Serveur, on_delete=models.PROTECT)
+	personnel = models.ForeignKey("Personnel", on_delete=models.PROTECT)
 
 	class Meta:
 		ordering = ("-id", )
 
 	def save(self, *args, **kwargs):
-		self.reste = self.a_payer-self.payee
+		self.reste = self.a_payer()-self.payee
 		super(Commande, self).save(*args, **kwargs)
 
 	def paniers(self):
 		return DetailCommande.objects.filter(commande=self)
 
 	def a_payer(self):
-		return self.paniers().aggregate(Sum('somme'))["somme__sum"]
+		try:
+			return float(self.paniers().aggregate(Sum('somme'))["somme__sum"])
+		except Exception as e:
+			return 0
 
 class Paiement(models.Model):
 	commande = models.ForeignKey("Commande", null=True, on_delete=models.SET_NULL)

@@ -49,24 +49,28 @@ class RecetteSerializer(serializers.ModelSerializer):
 
 class DetailCommandeSerializer(serializers.ModelSerializer):
 	nom = serializers.SerializerMethodField()
+	
 	def get_nom(self, obj):
 		return obj.recette.nom
 
 	class Meta:
 		model = DetailCommande
-		fields = "id", "quantite", "somme", "pret", "commande", "recette", 'nom', 'obligations'
 		fields = "__all__"
 
 class CommandeSerializer(serializers.ModelSerializer):
 	details = DetailCommandeSerializer(many=True, read_only=True)
 	a_payer = serializers.SerializerMethodField()
-	
+
 	class Meta:
 		model = Commande
 		fields = "__all__"
 
 	def get_a_payer(self, obj):
 		return obj.a_payer()
+
+	def create(self, validated_data):
+		instance, created = Commande.objects.get_or_create(**validated_data)
+		return instance
 
 class TokenPairSerializer(TokenObtainPairSerializer):
 	
