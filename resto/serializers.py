@@ -59,9 +59,14 @@ class DetailCommandeSerializer(serializers.ModelSerializer):
 
 class CommandeSerializer(serializers.ModelSerializer):
 	details = DetailCommandeSerializer(many=True, read_only=True)
+	a_payer = serializers.SerializerMethodField()
+	
 	class Meta:
 		model = Commande
 		fields = "__all__"
+
+	def get_a_payer(self, obj):
+		return obj.a_payer()
 
 class TokenPairSerializer(TokenObtainPairSerializer):
 	
@@ -81,4 +86,5 @@ class TokenPairSerializer(TokenObtainPairSerializer):
 		data = super(TokenPairSerializer, self).validate(attrs)
 		data['services'] = [group.name for group in self.user.groups.all()]
 		data['is_admin'] = self.user.is_superuser
+		data['id'] = self.user.personnel.id
 		return data

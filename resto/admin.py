@@ -50,11 +50,14 @@ class RecetteAdmin(admin.ModelAdmin):
 
 class CommandeAdmin(admin.ModelAdmin):
 	list_display = ("table", "serveur", "personnel", "date", "a_payer", "payee", "reste")
-	list_filter = ("table", "serveur", "personnel", "date", "a_payer", "payee", "reste")
+	list_filter = ("table", "serveur", "personnel", "date", "payee", "reste")
 	search_field = ("table", "serveur", "personnel", "date", "a_payer", "payee", "reste")
-	ordering = ("table", "serveur", "personnel", "date", "a_payer", "payee", "reste")
+	ordering = ("table", "serveur", "personnel", "date", "payee", "reste")
 
 	select_related = True
+
+	def a_payer(self, obj):
+		return obj.a_payer()
 
 class PaiementAdmin(admin.ModelAdmin):
 	list_display = ("commande","somme","date")

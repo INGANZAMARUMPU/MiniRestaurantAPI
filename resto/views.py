@@ -39,6 +39,12 @@ class DetailStockViewset(viewsets.ModelViewSet):
 	queryset = DetailStock.objects.select_related("stock", "personnel")
 	serializer_class = DetailStockSerializer
 
+class DetailCommandeViewset(viewsets.ModelViewSet):
+	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	permission_classes = [IsAuthenticated]
+	queryset = DetailCommande.objects.select_related("commande", "recette")
+	serializer_class = DetailCommandeSerializer
+
 class OffreViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
 	permission_classes = [IsAuthenticated]

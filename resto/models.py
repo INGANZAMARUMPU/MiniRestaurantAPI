@@ -153,11 +153,6 @@ class DetailCommande(models.Model):
 	somme = models.PositiveIntegerField(editable=False, blank=True, verbose_name='à payer')
 	date = models.DateTimeField(default=timezone.now)
 
-	def save(self, *args, **kwargs):
-		self.somme = self.recette.prix()*self.quantite
-		super(DetailCommande, self).save(*args, **kwargs)
-		self.updateCommande()
-
 	class Meta:
 		unique_together = ('commande','recette')
 		ordering = ['date']
@@ -165,30 +160,28 @@ class DetailCommande(models.Model):
 	def __str__(self):
 		return f"{self.recette}"
 
-	def updateCommande(self):
-		commande = self.commande
-		commande.a_payer += self.somme
-		commande.save()
-
 class Commande(models.Model):
 	table = models.ForeignKey(Table, default=1, on_delete=models.SET_DEFAULT)
 	tel = models.CharField(verbose_name='numero de télephone', blank=True, default=0, max_length=24)
-	date = models.DateField(blank=True, default=timezone.now)
-	a_payer = models.FloatField(default=0, blank=True)
+	date = models.DateTimeField(blank=True, default=timezone.now)
+	# a_payer = models.FloatField(default=0, blank=True)
 	payee = models.FloatField(default=0, blank=True)
 	reste = models.FloatField(default=0, blank=True)
 	serveur = models.ForeignKey(Serveur, blank=True, null=True, on_delete=models.SET_NULL)
 	personnel = models.ForeignKey("Personnel", null=True, on_delete=models.PROTECT)
 
+	class Meta:
+		ordering = ("-id", )
+
 	def save(self, *args, **kwargs):
 		self.reste = self.a_payer-self.payee
 		super(Commande, self).save(*args, **kwargs)
 
-	class Meta:
-		ordering = ("-id", )
-
 	def paniers(self):
-		return Panier.objects.filter(commande=self)
+		return DetailCommande.objects.filter(commande=self)
+
+	def a_payer(self):
+		return self.paniers().aggregate(Sum('somme'))["somme__sum"]
 
 class Paiement(models.Model):
 	commande = models.ForeignKey("Commande", null=True, on_delete=models.SET_NULL)
