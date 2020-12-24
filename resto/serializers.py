@@ -49,9 +49,13 @@ class RecetteSerializer(serializers.ModelSerializer):
 
 class DetailCommandeSerializer(serializers.ModelSerializer):
 	nom = serializers.SerializerMethodField()
+	prix = serializers.SerializerMethodField()
 	
 	def get_nom(self, obj):
 		return obj.recette.nom
+
+	def get_prix(self, obj):
+		return obj.recette.prix
 
 	class Meta:
 		model = DetailCommande
@@ -73,7 +77,10 @@ class CommandeSerializer(serializers.ModelSerializer):
 		return str(obj.serveur)
 
 	def create(self, validated_data):
-		instance, created = Commande.objects.get_or_create(**validated_data)
+		instance = Commande.objects.filter(**validated_data).last()
+		if(instance and instance.a_payer == 0) : return instance
+		instance = Commande(**validated_data)
+		instance.save()
 		return instance
 
 class TokenPairSerializer(TokenObtainPairSerializer):
