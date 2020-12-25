@@ -38,7 +38,8 @@ class RecetteSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Recette
-		fields = "id","nom", "image", "details", "prix", "disponible"
+		fields = "id","nom", "image", "details", "prix", "disponible", "produit"
+		read_only_fields = 'produit', 
 
 class DetailCommandeSerializer(serializers.ModelSerializer):
 	nom = serializers.SerializerMethodField()

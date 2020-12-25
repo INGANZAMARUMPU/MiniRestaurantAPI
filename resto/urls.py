@@ -13,6 +13,7 @@ router.register("detail_commande", DetailCommandeViewset)
 router.register("paiement", PaiementViewset)
 router.register("recette", RecetteViewset)
 router.register("commande", CommandeViewset)
+router.register("statistic", StatisticViewset, basename='stats')
 
 urlpatterns = [
 	path("api/", include(router.urls)),

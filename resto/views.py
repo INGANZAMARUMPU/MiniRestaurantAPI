@@ -62,3 +62,24 @@ class CommandeViewset(viewsets.ModelViewSet):
 	permission_classes = [IsAuthenticated]
 	queryset = Commande.objects.select_related("table", "serveur", "personnel")
 	serializer_class = CommandeSerializer
+
+
+class StatisticViewset(viewsets.ViewSet):
+	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	permission_classes = [IsAuthenticated]
+
+	@action(methods=['GET'], detail=False, url_path=r'menu',url_name="menu")
+	def menu(self, request):
+		details = DetailCommande.objects.values('recette__nom').\
+			order_by('recette').annotate(datas=Sum('quantite'),\
+				labels=F('recette__nom'))
+		# serializer = DetailCommandeSerializer(details, many=True)
+		return Response(details)
+
+	@action(methods=['GET'], detail=False, url_path=r'service',url_name="service")
+	def service(self, request):
+		details = Commande.objects.values('serveur').\
+			order_by('serveur').annotate(datas=Count('id', distinct=True),\
+				labels=F('serveur__firstname'))
+		# serializer = DetailCommandeSerializer(details, many=True)
+		return Response(details)
