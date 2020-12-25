@@ -49,69 +49,23 @@ class Produit(models.Model):
 		ordering = ["nom"]
 
 class DetailStock(models.Model):
-	stock = models.ForeignKey('Stock', on_delete=models.CASCADE)
+	produit = models.ForeignKey("Produit", on_delete=models.CASCADE)
 	quantite = models.FloatField()
 	date = models.DateTimeField(blank=True, default=timezone.now)
 	motif = models.CharField(max_length=64, blank=True, null=True)
-	personnel = models.ForeignKey("Personnel", null=True, on_delete=models.PROTECT)
+	personnel = models.ForeignKey("Personnel", on_delete=models.PROTECT)
 
 	def save(self, *args, **kwargs):
-		stock = self.stock
-		stock.quantite_actuelle -= abs(self.quantite)
-		stock.save() 
 		super(DetailStock, self).save(*args, **kwargs)
+		produit = self.produit
+		produit.quantite += self.quantite
+		produit.save() 
 
 	def __str__(self):
-		return f"{self.stock.produit} du {self.stock.date} -\
-			{self.quantite} {self.stock.produit.unite}"
-
-class Stock(models.Model):
-	produit = models.ForeignKey("Produit", on_delete=models.CASCADE)
-	offre = models.ForeignKey("Offre", null=True, on_delete=models.SET_NULL)
-	quantite_initiale = models.FloatField(verbose_name='quantité initial')
-	quantite_actuelle = models.FloatField(editable=False, verbose_name='quantité actuelle')
-	date = models.DateField(blank=True, default=timezone.now)
-	expiration = models.PositiveIntegerField(default=7, null=True, blank=True, verbose_name="délais de validité(en jours)")
-	expiration_date = models.DateField(editable=False, null=True)
-	# is_valid = models.BooleanField(default=True)
-
-	def __str__(self):
-		return f"{self.produit} {self.quantite_actuelle} {self.produit.unite} du {self.date}"
-
-	def save(self, *args, **kwargs):
-		if self.quantite_actuelle == None:
-			self.quantite_actuelle = self.quantite_initiale
-		if self.expiration:
-			self.expiration_date=self.date+timedelta(days=self.expiration)
-		super(Stock, self).save(*args, **kwargs)
-		self.calculateProxy()
-
-	def calculateProxy(self):
-		somme = Stock.objects.filter(produit=self.produit, \
-				quantite_actuelle__gt=0)\
-			.aggregate(somme=Sum('quantite_actuelle'))
-		self.produit.quantite = somme['somme']
-		self.produit.save()
-
-	def somme(self):
-		return self.quantite_initiale*self.offre.prix
+		return f"{self.date}:{self.produit} {self.quantite} {self.produit.unite}"
 
 	class Meta:
 		ordering = ["produit"]
-
-class Offre(models.Model):
-	produit = models.ForeignKey("Produit", null=True, on_delete=models.SET_NULL)
-	fournisseur = models.ForeignKey("Fournisseur", null=True, on_delete=models.SET_NULL)
-	prix = models.FloatField()
-
-	def __str__(self):
-		try:
-			return f"{self.fournisseur} - {self.prix} - {self.produit.nom}"
-		except:
-			return ""
-
-	class Meta:
-		unique_together = ('produit', 'fournisseur', 'prix')
 
 class Fournisseur(models.Model):
 	nom = models.CharField(verbose_name='nom et prenom', max_length=64)
@@ -137,6 +91,7 @@ class Recette(models.Model):
 	disponible = models.BooleanField(default=True)
 	details = models.URLField(null=True, blank=True)
 	prix = models.FloatField()
+	produit = models.ForeignKey("Produit", null=True, blank=True, on_delete=models.SET_NULL)
 
 	def __str__(self):
 		return f"{self.nom}"
@@ -146,7 +101,7 @@ class Recette(models.Model):
 		PrixRecette(recette=self, prix=self.prix).save()
 
 class DetailCommande(models.Model):
-	commande = models.ForeignKey("Commande", null=True, on_delete=models.CASCADE, related_name='details')
+	commande = models.ForeignKey("Commande", null=True, on_delete=models.CASCADE,related_name='details')
 	recette = models.ForeignKey("Recette", null=True, on_delete=models.SET_NULL)
 	quantite = models.PositiveIntegerField(default=1)
 	somme = models.PositiveIntegerField(editable=False, blank=True, verbose_name='à payer')
@@ -155,6 +110,11 @@ class DetailCommande(models.Model):
 	def save(self, *args, **kwargs):
 		self.somme = self.recette.prix * self.quantite
 		super(DetailCommande, self).save(*args, **kwargs)
+		produit = self.recette.produit
+		if produit:
+			DetailStock(
+				produit=produit, quantite=-self.quantite,
+				personnel=self.commande.personnel).save()
 
 	class Meta:
 		unique_together = ('commande','recette')
@@ -169,7 +129,7 @@ class Commande(models.Model):
 	date = models.DateTimeField(blank=True, default=timezone.now)
 	# a_payer = models.FloatField(default=0, blank=True)
 	payee = models.FloatField(default=0, blank=True)
-	reste = models.FloatField(default=0, blank=True)
+	reste = models.FloatField(editable=False, default=0, blank=True)
 	serveur = models.ForeignKey(Serveur, null=True, on_delete=models.SET_NULL)
 	personnel = models.ForeignKey("Personnel", null=True, on_delete=models.SET_NULL)
 

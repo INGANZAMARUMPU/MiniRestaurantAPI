@@ -19,20 +19,6 @@ class ProduitAdmin(admin.ModelAdmin):
 	search_field = ("nom", "unite", "unite_sortant")
 	ordering = ("nom", "unite", "unite_sortant")
 
-class OffreAdmin(admin.ModelAdmin):
-	list_display = ('produit', 'fournisseur', "prix")
-	list_filter = ('produit', 'fournisseur', "prix")
-	search_field = ('produit', 'fournisseur', "prix")
-	ordering = ('produit', 'fournisseur', "prix")
-
-class StockAdmin(admin.ModelAdmin):
-	list_display = ("produit", "quantite_initiale", "quantite_actuelle", "offre", "somme", "date", "expiration_date")
-	list_filter = ("produit", "quantite_initiale", "quantite_actuelle", "offre", "date", "expiration_date")
-	search_field = ("produit", "quantite_initiale", "quantite_actuelle", "offre", "date", "expiration_date")
-	ordering = ("produit", "quantite_initiale", "quantite_actuelle", "offre", "date", "expiration_date")
-
-	select_related = True
-
 class FournisseurAdmin(admin.ModelAdmin):
 	list_display = ('nom', 'adresse', 'tel')
 	list_filter = ('nom', 'adresse', 'tel')
@@ -80,21 +66,19 @@ class DetailCommandeAdmin(admin.ModelAdmin):
 
 @admin.register(DetailStock)
 class DetailStockAdmin(admin.ModelAdmin):
-	list_display = "stock", "quantite", "personnel", "date"
-	list_filter = "stock", "quantite", "personnel", "date"
-	search_field = "stock", "quantite", "personnel", "date"
-	ordering = "stock", "quantite", "personnel", "date"
+	list_display = "produit", "quantite", "personnel", "date"
+	list_filter = "produit", "quantite", "personnel", "date"
+	search_field = "produit", "quantite", "personnel", "date"
+	ordering = "produit", "quantite", "personnel", "date"
 
 	select_related = True
 
 admin.site.register(Produit, ProduitAdmin)
-admin.site.register(Stock, StockAdmin)
 admin.site.register(Fournisseur, FournisseurAdmin)
 admin.site.register(Recette, RecetteAdmin)
 admin.site.register(DetailCommande, DetailCommandeAdmin)
 admin.site.register(Commande, CommandeAdmin)
 admin.site.register(Paiement, PaiementAdmin)
-admin.site.register(Offre, OffreAdmin)
 admin.site.register(Personnel, PersonnelAdmin)
 admin.site.register(Serveur, ServeurAdmin)
 admin.site.register(Table)

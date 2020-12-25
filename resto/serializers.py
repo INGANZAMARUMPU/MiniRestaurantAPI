@@ -22,19 +22,9 @@ class DetailStockSerializer(serializers.ModelSerializer):
 		model = DetailStock
 		fields = "__all__"
 
-class OffreSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Offre
-		fields = "__all__"
-
 class PaiementSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Paiement
-		fields = "__all__"
-
-class StockSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Stock
 		fields = "__all__"
 
 class FournisseurSerializer(serializers.ModelSerializer):
@@ -43,9 +33,11 @@ class FournisseurSerializer(serializers.ModelSerializer):
 		fields = "__all__"
 
 class RecetteSerializer(serializers.ModelSerializer):
+	produit = serializers.ReadOnlyField()
+
 	class Meta:
 		model = Recette
-		fields = "id","nom", "image", "disponible", "details", "prix"
+		fields = "id","nom", "image", "disponible", "details", "prix", "produit"
 
 class DetailCommandeSerializer(serializers.ModelSerializer):
 	nom = serializers.SerializerMethodField()

@@ -10,14 +10,10 @@ router.register("serveur", ServeurViewset)
 router.register("table", TableViewset)
 router.register("detailstock", DetailStockViewset)
 router.register("detail_commande", DetailCommandeViewset)
-router.register("offre", OffreViewset)
 router.register("paiement", PaiementViewset)
-router.register("stock", StockViewset)
 router.register("fournisseur", FournisseurViewset)
 router.register("recette", RecetteViewset)
 router.register("commande", CommandeViewset)
-router.register("chart_menus", ChartRecetteViewset, basename='chart_menus')
-router.register("chart_perso", ChartPersonnelViewset, basename='chart_perso')
 
 urlpatterns = [
 	path("api/", include(router.urls)),
