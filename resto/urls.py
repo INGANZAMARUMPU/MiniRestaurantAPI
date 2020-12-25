@@ -11,7 +11,6 @@ router.register("table", TableViewset)
 router.register("detailstock", DetailStockViewset)
 router.register("detail_commande", DetailCommandeViewset)
 router.register("paiement", PaiementViewset)
-router.register("fournisseur", FournisseurViewset)
 router.register("recette", RecetteViewset)
 router.register("commande", CommandeViewset)
 

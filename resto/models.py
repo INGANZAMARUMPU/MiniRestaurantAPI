@@ -67,16 +67,6 @@ class DetailStock(models.Model):
 	class Meta:
 		ordering = ["produit"]
 
-class Fournisseur(models.Model):
-	nom = models.CharField(verbose_name='nom et prenom', max_length=64)
-	adresse = models.CharField(max_length=64)
-	tel = models.CharField(verbose_name='numero de télephone', max_length=24)
-
-	class Meta:
-		unique_together = ('adresse', 'tel')
-	def __str__(self):
-		return f"{self.nom}"
-
 class PrixRecette(models.Model):
 	recette = models.ForeignKey("Recette", null=True, on_delete=models.SET_NULL)
 	prix = models.PositiveIntegerField()
@@ -98,7 +88,9 @@ class Recette(models.Model):
 
 	def save(self, *args, **kwargs):
 		super(Recette, self).save(*args, **kwargs)
-		PrixRecette(recette=self, prix=self.prix).save()
+		prix = PrixRecette.objects.filter(recette=self)
+		if(prix and prix.last().prix != self.prix):
+			PrixRecette(recette=self, prix=self.prix).save()
 
 class DetailCommande(models.Model):
 	commande = models.ForeignKey("Commande", null=True, on_delete=models.CASCADE,related_name='details')

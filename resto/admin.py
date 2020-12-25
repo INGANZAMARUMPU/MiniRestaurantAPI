@@ -1,36 +1,46 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import *
 
+@admin.register(Personnel)
 class PersonnelAdmin(admin.ModelAdmin):
 	list_display = ("user", "tel", "avatar")
 	list_filter = ("user", "tel")
 	search_field = ("user", "tel")
 	ordering = ("user", "tel")
 
+@admin.register(Serveur)
 class ServeurAdmin(admin.ModelAdmin):
 	list_display = ("firstname", "lastname", "tel", "avatar")
 	list_filter = ("firstname", "lastname", "tel")
 	search_field = ("firstname", "lastname", "tel")
 	ordering = ("firstname", "lastname", "tel")
 
+@admin.register(Produit)
 class ProduitAdmin(admin.ModelAdmin):
 	list_display = ("nom", "unite", "unite_sortant", "quantite")
 	list_filter = ("nom", "unite", "unite_sortant", "quantite")
 	search_field = ("nom", "unite", "unite_sortant")
 	ordering = ("nom", "unite", "unite_sortant")
 
-class FournisseurAdmin(admin.ModelAdmin):
-	list_display = ('nom', 'adresse', 'tel')
-	list_filter = ('nom', 'adresse', 'tel')
-	search_field = ('nom', 'adresse', 'tel')
-	ordering = ('nom', 'adresse', 'tel')
-
+@admin.register(Recette)
 class RecetteAdmin(admin.ModelAdmin):
-	list_display = ("nom", "image", "details")
-	list_filter = ("nom", "image", "details")
-	search_field = ("nom", "image", "details")
-	ordering = ("nom", "image", "details")
+	list_display = ("nom", "dispo", "prix", "details")
+	list_filter = ("nom", "prix", "details")
+	search_field = ("nom", "dispo", "prix", "details")
+	ordering = ("nom", "prix", "details")
 
+	def dispo(self, obj):
+		value = False
+		if(obj.produit):
+			value = obj.produit.quantite > 0
+		else:
+			value = obj.disponible
+		if value:
+			return format_html('<img src="/static/admin/img/icon-yes.svg" alt="True">')
+		return format_html('<img src="/static/admin/img/icon-no.svg" alt="False">')
+
+@admin.register(Commande)
 class CommandeAdmin(admin.ModelAdmin):
 	list_display = ("table", "serveur", "personnel", "date", "a_payer", "payee", "reste")
 	list_filter = ("table", "serveur", "personnel", "date", "payee", "reste")
@@ -42,6 +52,7 @@ class CommandeAdmin(admin.ModelAdmin):
 	def a_payer(self, obj):
 		return obj.a_payer()
 
+@admin.register(Paiement)
 class PaiementAdmin(admin.ModelAdmin):
 	list_display = ("commande","somme","date")
 	list_filter = ("commande","somme","date")
@@ -50,12 +61,7 @@ class PaiementAdmin(admin.ModelAdmin):
 
 	select_related = True
 
-class PlaceAdmin(admin.ModelAdmin):
-	list_display = ("nom",)
-	list_filter = ("nom",)
-	search_field = ("nom",)
-	ordering = ("nom",)
-
+@admin.register(DetailCommande)
 class DetailCommandeAdmin(admin.ModelAdmin):
 	list_display = ("recette", "commande", "quantite", "somme", "date")
 	list_filter = ("recette", "commande", "quantite", "somme", "date")
@@ -73,13 +79,5 @@ class DetailStockAdmin(admin.ModelAdmin):
 
 	select_related = True
 
-admin.site.register(Produit, ProduitAdmin)
-admin.site.register(Fournisseur, FournisseurAdmin)
-admin.site.register(Recette, RecetteAdmin)
-admin.site.register(DetailCommande, DetailCommandeAdmin)
-admin.site.register(Commande, CommandeAdmin)
-admin.site.register(Paiement, PaiementAdmin)
-admin.site.register(Personnel, PersonnelAdmin)
-admin.site.register(Serveur, ServeurAdmin)
 admin.site.register(Table)
 admin.site.register(PrixRecette)

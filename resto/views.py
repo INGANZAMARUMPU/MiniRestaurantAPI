@@ -51,16 +51,10 @@ class PaiementViewset(viewsets.ModelViewSet):
 	queryset = Paiement.objects.select_related("produit", "fournisseur")
 	serializer_class = PaiementSerializer
 
-class FournisseurViewset(viewsets.ModelViewSet):
-	authentication_classes = [SessionAuthentication, JWTAuthentication]
-	permission_classes = [IsAuthenticated]
-	queryset = Fournisseur.objects.all()
-	serializer_class = FournisseurSerializer
-
 class RecetteViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
 	permission_classes = [IsAuthenticated]
-	queryset = Recette.objects.all()
+	queryset = Recette.objects.select_related("produit")
 	serializer_class = RecetteSerializer
 
 class CommandeViewset(viewsets.ModelViewSet):

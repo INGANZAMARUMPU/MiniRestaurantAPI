@@ -27,17 +27,18 @@ class PaiementSerializer(serializers.ModelSerializer):
 		model = Paiement
 		fields = "__all__"
 
-class FournisseurSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Fournisseur
-		fields = "__all__"
-
 class RecetteSerializer(serializers.ModelSerializer):
-	produit = serializers.ReadOnlyField()
+	disponible = serializers.SerializerMethodField()
+
+	def get_disponible(self, obj):
+		if(obj.produit):
+			print(obj.produit)
+			return obj.produit.quantite > 0
+		return obj.disponible
 
 	class Meta:
 		model = Recette
-		fields = "id","nom", "image", "disponible", "details", "prix", "produit"
+		fields = "id","nom", "image", "details", "prix", "disponible"
 
 class DetailCommandeSerializer(serializers.ModelSerializer):
 	nom = serializers.SerializerMethodField()
