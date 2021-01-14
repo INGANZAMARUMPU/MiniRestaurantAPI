@@ -51,7 +51,7 @@ class DetailCommandeViewset(viewsets.ModelViewSet):
 class PaiementViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
 	permission_classes = [IsAuthenticated]
-	queryset = Paiement.objects.select_related("produit", "fournisseur")
+	queryset = Paiement.objects.select_related("commande")
 	serializer_class = PaiementSerializer
 
 class RecetteViewset(viewsets.ModelViewSet):

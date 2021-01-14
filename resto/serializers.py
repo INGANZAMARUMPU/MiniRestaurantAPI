@@ -23,6 +23,11 @@ class DetailStockSerializer(serializers.ModelSerializer):
 		fields = "__all__"
 
 class PaiementSerializer(serializers.ModelSerializer):
+	date = serializers.SerializerMethodField()
+
+	def get_date(self, obj):
+		return str(obj.date)
+
 	class Meta:
 		model = Paiement
 		fields = "__all__"

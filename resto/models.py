@@ -74,7 +74,7 @@ class PrixRecette(models.Model):
 	
 	def __str__(self):
 		return f"{self.recette.nom} à {self.prix}"
-
+		
 class Recette(models.Model):
 	nom = models.CharField(max_length=64)
 	image = models.ImageField(upload_to="recettes/")
@@ -149,8 +149,6 @@ class Paiement(models.Model):
 	def save(self, *args, **kwargs):
 		commande = self.commande
 		super(Paiement, self).save(*args, **kwargs)
-		# paiements = Paiement.objects.filter(commande=commande).aggregate(Sum("somme"))["somme__sum"]
-		# commande.payee = paiements
 		commande.payee += self.somme
-		commande.reste = commande.a_payer-paiements
+		commande.reste = commande.a_payer()-self.somme
 		commande.save()
