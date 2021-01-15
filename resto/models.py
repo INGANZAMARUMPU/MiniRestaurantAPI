@@ -48,15 +48,16 @@ class Produit(models.Model):
 	class Meta:
 		ordering = ["nom"]
 
-class DetailStock(models.Model):
+class Achat(models.Model):
 	produit = models.ForeignKey("Produit", on_delete=models.CASCADE)
 	quantite = models.FloatField()
+	prix = models.FloatField()
 	date = models.DateTimeField(blank=True, default=timezone.now)
 	motif = models.CharField(max_length=64, blank=True, null=True)
 	personnel = models.ForeignKey("Personnel", on_delete=models.PROTECT)
 
 	def save(self, *args, **kwargs):
-		super(DetailStock, self).save(*args, **kwargs)
+		super(Achat, self).save(*args, **kwargs)
 		produit = self.produit
 		produit.quantite += self.quantite
 		produit.save() 
@@ -104,9 +105,8 @@ class DetailCommande(models.Model):
 		super(DetailCommande, self).save(*args, **kwargs)
 		produit = self.recette.produit
 		if produit:
-			DetailStock(
-				produit=produit, quantite=-self.quantite,
-				personnel=self.commande.personnel).save()
+			produit.quantite -= self.quantite
+			Produit.save()
 
 	class Meta:
 		unique_together = ('commande','recette')

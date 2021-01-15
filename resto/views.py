@@ -36,11 +36,11 @@ class TableViewset(viewsets.ModelViewSet):
 	queryset = Table.objects.all()
 	serializer_class = TableSerializer
 
-class DetailStockViewset(viewsets.ModelViewSet):
+class AchatViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
 	permission_classes = [IsAuthenticated]
-	queryset = DetailStock.objects.select_related("stock", "personnel")
-	serializer_class = DetailStockSerializer
+	queryset = Achat.objects.select_related("produit", "personnel")
+	serializer_class = AchatSerializer
 
 class DetailCommandeViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
@@ -65,7 +65,6 @@ class CommandeViewset(viewsets.ModelViewSet):
 	permission_classes = [IsAuthenticated]
 	queryset = Commande.objects.select_related("table", "serveur", "personnel")
 	serializer_class = CommandeSerializer
-
 
 class StatisticViewset(viewsets.ViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]

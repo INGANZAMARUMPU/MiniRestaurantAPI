@@ -17,9 +17,16 @@ class TableSerializer(serializers.ModelSerializer):
 		model = Table
 		fields = "__all__"
 
-class DetailStockSerializer(serializers.ModelSerializer):
+class AchatSerializer(serializers.ModelSerializer):
+
+	def to_representation(self, obj):
+		data = super().to_representation(obj)
+		data["produit"] = str(obj.produit)
+		data["personnel"] = str(obj.personnel)
+		return data
+
 	class Meta:
-		model = DetailStock
+		model = Achat
 		fields = "__all__"
 
 class PaiementSerializer(serializers.ModelSerializer):

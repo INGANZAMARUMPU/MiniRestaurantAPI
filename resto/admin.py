@@ -70,12 +70,12 @@ class DetailCommandeAdmin(admin.ModelAdmin):
 
 	select_related = True
 
-@admin.register(DetailStock)
-class DetailStockAdmin(admin.ModelAdmin):
-	list_display = "produit", "quantite", "personnel", "date"
-	list_filter = "produit", "quantite", "personnel", "date"
-	search_field = "produit", "quantite", "personnel", "date"
-	ordering = "produit", "quantite", "personnel", "date"
+@admin.register(Achat)
+class AchatAdmin(admin.ModelAdmin):
+	list_display = "produit", "prix", "quantite", "personnel", "date"
+	list_filter = "produit", "prix", "quantite", "personnel", "date"
+	search_field = "produit", "prix", "quantite", "personnel", "date"
+	ordering = "produit", "prix", "quantite", "personnel", "date"
 
 	select_related = True
 
