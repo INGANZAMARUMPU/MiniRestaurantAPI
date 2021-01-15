@@ -7,10 +7,11 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from django.db.models import Count, F
 from django.db import connection
 
 from datetime import datetime, date, timedelta
+
+import traceback, sys
 
 from .models import *
 from .serializers import *
@@ -41,6 +42,24 @@ class AchatViewset(viewsets.ModelViewSet):
 	permission_classes = [IsAuthenticated]
 	queryset = Achat.objects.select_related("produit", "personnel")
 	serializer_class = AchatSerializer
+
+	def create(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
+		data = request.data
+		try:
+			achat = Achat(
+				produit = Produit.objects.get(id=data["produit"]),
+				quantite = float(data["quantite"]),
+				prix = float(data["prix"]),
+				personnel = request.user.personnel
+			)
+			achat.save()
+			serializer = self.serializer_class(achat, many=False)
+			return Response(serializer.data, 201)
+		except:
+			traceback.print_exception(*sys.exc_info()) 
+			return Response({'status': 'Quelque chose d\'incorrect'}, 400)
 
 class DetailCommandeViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]

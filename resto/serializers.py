@@ -18,11 +18,14 @@ class TableSerializer(serializers.ModelSerializer):
 		fields = "__all__"
 
 class AchatSerializer(serializers.ModelSerializer):
+	personnel = serializers.SerializerMethodField()
+
+	def get_personnel(self, obj):
+		return str(obj.personnel)
 
 	def to_representation(self, obj):
 		data = super().to_representation(obj)
 		data["produit"] = str(obj.produit)
-		data["personnel"] = str(obj.personnel)
 		return data
 
 	class Meta:
