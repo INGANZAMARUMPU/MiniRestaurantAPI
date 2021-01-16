@@ -106,7 +106,7 @@ class DetailCommande(models.Model):
 		produit = self.recette.produit
 		if produit:
 			produit.quantite -= self.quantite
-			Produit.save()
+			produit.save()
 
 	class Meta:
 		unique_together = ('commande','recette')

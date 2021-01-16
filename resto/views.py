@@ -97,7 +97,7 @@ class CommandeViewset(viewsets.ModelViewSet):
 			with transaction.atomic():
 				dict_client = data.get("client")
 				client = None
-				if(dict_client.get("tel")):
+				if(dict_client and dict_client.get("tel")):
 					client, created = Client.objects.get_or_create(
 						tel = dict_client.get("tel")
 					)
@@ -107,11 +107,11 @@ class CommandeViewset(viewsets.ModelViewSet):
 				commande = Commande(
 					personnel = request.user.personnel,
 					client = client,
-					serveur = Serveur.objects.get(id="serveur")
+					serveur = Serveur.objects.get(id=data.get("serveur"))
 				)
 				commande.save()
 				for item in data.get("items"):
-					recette = Recette.objects.get(id=item.get("id"))
+					recette = Recette.objects.get(id=item.get("recette"))
 					DetailCommande(
 						recette = recette, commande = commande,
 						quantite=item.get("quantite")
