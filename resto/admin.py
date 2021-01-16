@@ -16,6 +16,13 @@ class ServeurAdmin(admin.ModelAdmin):
 	search_field = ("firstname", "lastname", "tel")
 	ordering = ("firstname", "lastname", "tel")
 
+@admin.register(Client)
+class ClientAdmin(admin.ModelAdmin):
+	list_display = ("nom", "tel")
+	list_filter = ("nom", "tel")
+	search_field = ("nom", "tel")
+	ordering = ("nom", "tel")
+
 @admin.register(Produit)
 class ProduitAdmin(admin.ModelAdmin):
 	list_display = ("nom", "unite", "unite_sortant", "quantite")

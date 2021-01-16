@@ -115,15 +115,25 @@ class DetailCommande(models.Model):
 	def __str__(self):
 		return f"{self.recette}"
 
+class Client(models.Model):
+	nom = models.CharField(verbose_name='nom', max_length=64)
+	tel = models.CharField(verbose_name='numero de télephone', max_length=24)
+
+	class Meta:
+		unique_together = ('nom', 'tel')
+
+	def __str__(self):
+		return f"{self.nom} {self.tel}"
+
 class Commande(models.Model):
 	table = models.ForeignKey(Table, default=1, on_delete=models.SET_DEFAULT)
-	tel = models.CharField(verbose_name='numero de télephone', blank=True, default=0, max_length=24)
 	date = models.DateTimeField(blank=True, default=timezone.now)
 	# a_payer = models.FloatField(default=0, blank=True)
 	payee = models.FloatField(default=0, blank=True)
 	reste = models.FloatField(editable=False, default=0, blank=True)
-	serveur = models.ForeignKey(Serveur, null=True, on_delete=models.SET_NULL)
+	serveur = models.ForeignKey("Serveur", null=True, on_delete=models.SET_NULL)
 	personnel = models.ForeignKey("Personnel", null=True, on_delete=models.SET_NULL)
+	client = models.ForeignKey("Client", null=True, on_delete=models.SET_NULL)
 
 	class Meta:
 		ordering = ("-id", )

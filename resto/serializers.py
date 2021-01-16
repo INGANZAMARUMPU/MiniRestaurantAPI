@@ -12,6 +12,11 @@ class ServeurSerializer(serializers.ModelSerializer):
 		model = Serveur
 		fields = "__all__"
 
+class ClientSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Client
+		fields = "__all__"
+
 class TableSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Table
@@ -84,13 +89,6 @@ class CommandeSerializer(serializers.ModelSerializer):
 
 	def get_serveur_name(self, obj):
 		return str(obj.serveur)
-
-	def create(self, validated_data):
-		instance = Commande.objects.filter(**validated_data).last()
-		if(instance and instance.a_payer == 0) : return instance
-		instance = Commande(**validated_data)
-		instance.save()
-		return instance
 
 class TokenPairSerializer(TokenObtainPairSerializer):
 	

@@ -12,6 +12,7 @@ router.register("achat", AchatViewset)
 router.register("detail_commande", DetailCommandeViewset)
 router.register("paiement", PaiementViewset)
 router.register("recette", RecetteViewset)
+router.register("client", ClientViewset)
 router.register("commande", CommandeViewset)
 router.register("statistic", StatisticViewset, basename='stats')
 

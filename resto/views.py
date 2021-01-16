@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from django.db import connection
+from django.db import connection, transaction, IntegrityError
 
 from datetime import datetime, date, timedelta
 
@@ -30,6 +30,12 @@ class ServeurViewset(viewsets.ModelViewSet):
 	permission_classes = [IsAuthenticated]
 	queryset = Serveur.objects.all()
 	serializer_class = ServeurSerializer
+
+class ClientViewset(viewsets.ModelViewSet):
+	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	permission_classes = [IsAuthenticated]
+	queryset = Client.objects.all()
+	serializer_class = ClientSerializer
 
 class TableViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
@@ -84,6 +90,40 @@ class CommandeViewset(viewsets.ModelViewSet):
 	permission_classes = [IsAuthenticated]
 	queryset = Commande.objects.select_related("table", "serveur", "personnel")
 	serializer_class = CommandeSerializer
+
+	def create(self, request, *args, **kwargs):
+		data = request.data
+		try:
+			with transaction.atomic():
+				dict_client = data.get("client")
+				client = None
+				if(dict_client.get("tel")):
+					client, created = Client.objects.get_or_create(
+						tel = dict_client.get("tel")
+					)
+					if(not client.nom):
+						client.nom = dict_client.get("nom")
+						client.save()
+				commande = Commande(
+					personnel = request.user.personnel,
+					client = client,
+					serveur = Serveur.objects.get(id="serveur")
+				)
+				commande.save()
+				for item in data.get("items"):
+					recette = Recette.objects.get(id=item.get("id"))
+					DetailCommande(
+						recette = recette, commande = commande,
+						quantite=item.get("quantite")
+					).save()
+				payee = int(data.get("payee"))
+				if payee:
+					Paiement(commande=commande, somme=payee, validated=True).save()
+				serializer = self.serializer_class(commande, many=False)
+				return Response(serializer.data, 201)
+		except Exception:
+			traceback.print_exception(*sys.exc_info()) 
+			return Response({'status': 'Quelque chose d\'incorrect'}, 400)
 
 class StatisticViewset(viewsets.ViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
