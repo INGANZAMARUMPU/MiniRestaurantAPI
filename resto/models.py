@@ -21,7 +21,8 @@ class Serveur(models.Model):
 	firstname = models.CharField(verbose_name='nom', max_length=24)
 	lastname = models.CharField(verbose_name='prenom', max_length=24)
 	avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
-	tel = models.CharField(verbose_name='numero de télephone', max_length=24)
+	tel = models.CharField(max_length=24)
+	is_active = models.BooleanField(default=True)
 
 	class Meta:
 		unique_together = ('firstname', 'tel')
@@ -30,10 +31,15 @@ class Serveur(models.Model):
 		return f"{self.firstname} {self.lastname}"
 
 class Table(models.Model):
+	nom = models.CharField(max_length=32, default="Table")
 	number = models.IntegerField()
 
 	def __str__(self):
-		return f"Table {self.number}"
+		return f"{self.nom} {self.number}"
+
+	class Meta:
+		unique_together = "nom", "number"
+			
 
 class Produit(models.Model):
 	nom = models.CharField(max_length=64, unique=True)
@@ -83,6 +89,7 @@ class Recette(models.Model):
 	details = models.URLField(null=True, blank=True)
 	prix = models.FloatField()
 	produit = models.ForeignKey("Produit", null=True, blank=True, on_delete=models.SET_NULL)
+	is_active = models.BooleanField(default=True)
 
 	def __str__(self):
 		return f"{self.nom}"

@@ -31,6 +31,12 @@ class ServeurViewset(viewsets.ModelViewSet):
 	queryset = Serveur.objects.all()
 	serializer_class = ServeurSerializer
 
+	def destroy(self, request, *args, **kwargs):
+		serveur = self.get_object()
+		serveur.is_active = False
+		serveur.save()
+		return Response({'status': 'success'}, 204)
+
 class ClientViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
 	permission_classes = [IsAuthenticated]
@@ -85,11 +91,26 @@ class RecetteViewset(viewsets.ModelViewSet):
 	queryset = Recette.objects.select_related("produit")
 	serializer_class = RecetteSerializer
 
+	def destroy(self, request, *args, **kwargs):
+		recette = self.get_object()
+		recette.is_active = False
+		recette.save()
+		return Response({'status': 'success'}, 204)
+
 class CommandeViewset(viewsets.ModelViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
 	permission_classes = [IsAuthenticated]
 	queryset = Commande.objects.select_related("table", "serveur", "personnel")
 	serializer_class = CommandeSerializer
+
+	def list(self, request, *args, **kwargs):
+		params = request.query_params
+		unpaid = params.get("unpaid")
+		if(unpaid):
+			self.queryset = self.queryset.filter(
+				table__id=unpaid, reste__gt=0.
+			)
+		return super().list(request, *args, **kwargs)
 
 	def create(self, request, *args, **kwargs):
 		data = request.data

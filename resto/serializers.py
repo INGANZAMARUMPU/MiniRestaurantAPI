@@ -58,7 +58,7 @@ class RecetteSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Recette
-		fields = "id","nom", "image", "details", "prix", "disponible", "produit"
+		fields = "__all__"
 		read_only_fields = 'produit', 
 
 class DetailCommandeSerializer(serializers.ModelSerializer):
