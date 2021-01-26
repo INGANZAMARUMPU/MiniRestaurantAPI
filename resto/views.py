@@ -169,13 +169,14 @@ class StatisticViewset(viewsets.ViewSet):
 		with connection.cursor() as cursor:
 			cursor.execute(f"""
 				SELECT
-					A.id, A.nom, SUM (B.quantite) AS quantite 
+					A.id, A.nom, SUM(B.quantite) AS quantite,
+					SUM(B.quantite*A.prix) AS total 
 				FROM 
 					resto_detailcommande AS B, resto_recette AS A
 				WHERE
 					date between "{du}" AND "{au}" AND
 					A.id = B.recette_id
-				GROUP BY A.id;
+				GROUP BY B.recette_id;
 			""")
 			columns = [col[0] for col in cursor.description]
 			details = [
