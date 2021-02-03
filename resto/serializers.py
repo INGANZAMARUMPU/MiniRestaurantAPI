@@ -78,17 +78,19 @@ class DetailCommandeSerializer(serializers.ModelSerializer):
 class CommandeSerializer(serializers.ModelSerializer):
 	details = DetailCommandeSerializer(many=True, read_only=True)
 	a_payer = serializers.SerializerMethodField()
-	serveur_name = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Commande
 		fields = "__all__"
 
+	def to_representation(self, obj):
+		representation = super().to_representation(obj)
+		representation['personnel'] = str(obj.personnel)
+		representation['serveur'] = str(obj.serveur)
+		return representation
+
 	def get_a_payer(self, obj):
 		return obj.a_payer()
-
-	def get_serveur_name(self, obj):
-		return str(obj.serveur)
 
 class TokenPairSerializer(TokenObtainPairSerializer):
 	
