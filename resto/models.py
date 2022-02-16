@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from datetime import datetime, timedelta, date
 
 class Personnel(models.Model):
+	id = models.AutoField(primary_key=True)
 	user = models.OneToOneField(User, null=True, on_delete=models.SET_NULL)
 	avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
 	tel = models.CharField(verbose_name='numero de télephone', max_length=24)
@@ -18,6 +19,7 @@ class Personnel(models.Model):
 		return f"{string}"
 
 class Serveur(models.Model):
+	id = models.AutoField(primary_key=True)
 	firstname = models.CharField(verbose_name='nom', max_length=24)
 	lastname = models.CharField(verbose_name='prenom', max_length=24)
 	avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
@@ -31,6 +33,7 @@ class Serveur(models.Model):
 		return f"{self.firstname} {self.lastname}"
 
 class Table(models.Model):
+	id = models.AutoField(primary_key=True)
 	nom = models.CharField(max_length=32, default="Table")
 	number = models.IntegerField()
 
@@ -42,6 +45,7 @@ class Table(models.Model):
 			
 
 class Produit(models.Model):
+	id = models.AutoField(primary_key=True)
 	nom = models.CharField(max_length=64, unique=True)
 	unite = models.CharField(max_length=64, verbose_name='unité de mesure')
 	unite_sortant = models.CharField(max_length=64, null=True,blank=True)
@@ -55,6 +59,7 @@ class Produit(models.Model):
 		ordering = ["nom"]
 
 class Achat(models.Model):
+	id = models.AutoField(primary_key=True)
 	produit = models.ForeignKey("Produit", on_delete=models.CASCADE)
 	quantite = models.FloatField()
 	prix = models.FloatField()
@@ -75,6 +80,7 @@ class Achat(models.Model):
 		ordering = ["produit"]
 
 class PrixRecette(models.Model):
+	id = models.BigAutoField(primary_key=True)
 	recette = models.ForeignKey("Recette", null=True, on_delete=models.SET_NULL)
 	prix = models.PositiveIntegerField()
 	date = models.DateTimeField(default=timezone.now)
@@ -83,6 +89,7 @@ class PrixRecette(models.Model):
 		return f"{self.recette.nom} à {self.prix}"
 		
 class Recette(models.Model):
+	id = models.AutoField(primary_key=True)
 	nom = models.CharField(max_length=64)
 	image = models.ImageField(upload_to="recettes/")
 	disponible = models.BooleanField(default=True)
@@ -101,6 +108,7 @@ class Recette(models.Model):
 			PrixRecette(recette=self, prix=self.prix).save()
 
 class DetailCommande(models.Model):
+	id = models.BigAutoField(primary_key=True)
 	commande = models.ForeignKey("Commande", null=True, on_delete=models.CASCADE,related_name='details')
 	recette = models.ForeignKey("Recette", null=True, on_delete=models.SET_NULL)
 	quantite = models.PositiveIntegerField(default=1)
@@ -123,6 +131,7 @@ class DetailCommande(models.Model):
 		return f"{self.recette}"
 
 class Client(models.Model):
+	id = models.AutoField(primary_key=True)
 	nom = models.CharField(verbose_name='nom', max_length=64)
 	tel = models.CharField(verbose_name='numero de télephone', max_length=24)
 
@@ -133,6 +142,7 @@ class Client(models.Model):
 		return f"{self.nom} {self.tel}"
 
 class Commande(models.Model):
+	id = models.BigAutoField(primary_key=True)
 	table = models.ForeignKey(Table, default=1, on_delete=models.SET_DEFAULT)
 	date = models.DateTimeField(blank=True, default=timezone.now)
 	# a_payer = models.FloatField(default=0, blank=True)
@@ -159,6 +169,7 @@ class Commande(models.Model):
 			return 0
 
 class Paiement(models.Model):
+	id = models.BigAutoField(primary_key=True)
 	commande = models.ForeignKey("Commande", null=True, on_delete=models.SET_NULL)
 	somme = models.PositiveIntegerField(verbose_name='somme payée', default=0)
 	date = models.DateField(blank=True, default=timezone.now)
