@@ -17,7 +17,6 @@ router.register("commande", CommandeViewset)
 router.register("statistic", StatisticViewset, basename='stats')
 
 urlpatterns = [
-	path("api/", include(router.urls)),
 	path("", include(router.urls)),
 	path('api-auth/', include('rest_framework.urls')),
 	path('login/', TokenPairView.as_view()),
