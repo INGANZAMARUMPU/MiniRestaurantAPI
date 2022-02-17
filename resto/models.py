@@ -67,6 +67,7 @@ class Achat(models.Model):
 	motif = models.CharField(max_length=64, blank=True, null=True)
 	personnel = models.ForeignKey("Personnel", on_delete=models.PROTECT)
 
+	@transaction.atomic
 	def save(self, *args, **kwargs):
 		super(Achat, self).save(*args, **kwargs)
 		produit = self.produit
@@ -101,6 +102,7 @@ class Recette(models.Model):
 	def __str__(self):
 		return f"{self.nom}"
 
+	@transaction.atomic
 	def save(self, *args, **kwargs):
 		super(Recette, self).save(*args, **kwargs)
 		prix = PrixRecette.objects.filter(recette=self)
@@ -115,6 +117,7 @@ class DetailCommande(models.Model):
 	somme = models.PositiveIntegerField(editable=False, blank=True, verbose_name='à payer')
 	date = models.DateTimeField(default=timezone.now)
 
+	@transaction.atomic
 	def save(self, *args, **kwargs):
 		self.somme = self.recette.prix * self.quantite
 		super(DetailCommande, self).save(*args, **kwargs)
@@ -179,4 +182,7 @@ class Paiement(models.Model):
 		super(Paiement, self).save(*args, **kwargs)
 		commande.payee += self.somme
 		commande.reste = commande.a_payer()-self.somme
+		if(commande.payee > commande.a_payer()):
+			commande.payee = commande.a_payer()
+			commande.reste = 0
 		commande.save()

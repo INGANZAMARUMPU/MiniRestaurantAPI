@@ -154,7 +154,7 @@ class CommandeViewset(viewsets.ModelViewSet):
 	def destroy(self, request, pk):
 		commande:Commande = self.get_object()
 		if(commande.payee > 0):
-			return Response({'status': 'la commande payee ne peut pas être supprimer'}, 403)
+			return Response({'status': 'la commande payee ne peut pas être supprimé'}, 403)
 
 		details:List[DetailCommande] = DetailCommande.objects.filter(commande=commande)
 		for d in details:
@@ -165,7 +165,6 @@ class CommandeViewset(viewsets.ModelViewSet):
 		details.delete()
 		commande.delete()
 		return Response({'status': 'commande supprimée avec succes'}, 204)
-
 
 class StatisticViewset(viewsets.ViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
