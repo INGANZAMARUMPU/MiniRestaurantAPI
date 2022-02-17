@@ -58,7 +58,7 @@ class Achat(models.Model):
 	class Meta:
 		ordering = ["produit"]
 
-class Perte(models.Model):
+class Sortie(models.Model):
 	id = models.AutoField(primary_key=True)
 	produit = models.ForeignKey(Produit, on_delete=models.CASCADE)
 	quantite = models.FloatField()
@@ -98,12 +98,12 @@ class Client(models.Model):
 
 class Commande(models.Model):
 	id = models.BigAutoField(primary_key=True)
-	table = models.ForeignKey(Table, default=1, on_delete=models.SET_DEFAULT)
+	table = models.ForeignKey(Table, null=True, on_delete=models.SET_NULL)
 	date = models.DateTimeField(blank=True, default=timezone.now)
 	a_payer = models.PositiveIntegerField(default=0, blank=True)
 	payee = models.PositiveIntegerField(default=0, blank=True)
-	serveur = models.ForeignKey(Serveur, null=True, on_delete=models.SET_NULL)
-	user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+	serveur = models.ForeignKey(Serveur, on_delete=models.PROTECT)
+	user = models.ForeignKey(User, on_delete=models.PROTECT)
 	client = models.ForeignKey(Client, null=True, on_delete=models.SET_NULL)
 
 	class Meta:

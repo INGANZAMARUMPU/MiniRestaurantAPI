@@ -1,9 +1,9 @@
 from .dependancies import *
 
 class CommandeViewset(viewsets.ModelViewSet):
-	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	authentication_classes = [JWTAuthentication, SessionAuthentication]
 	permission_classes = [IsAuthenticated]
-	queryset = Commande.objects.select_related("table", "serveur", "personnel")
+	queryset = Commande.objects.select_related("table", "serveur", "user")
 	serializer_class = CommandeSerializer
 
 	def list(self, request, *args, **kwargs):
@@ -28,8 +28,7 @@ class CommandeViewset(viewsets.ModelViewSet):
 				client.nom = dict_client.get("nom")
 				client.save()
 		commande = Commande(
-			user = request.user,
-			client = client,
+			user = request.user, client = client,
 			serveur = Serveur.objects.get(id=data.get("serveur"))
 		)
 		commande.save()
@@ -53,7 +52,7 @@ class CommandeViewset(viewsets.ModelViewSet):
 		if payee:
 			Paiement(commande=commande, somme=payee, validated=True).save()
 		commande.payee = payee
-		commande.prix = prix
+		commande.a_payer = prix
 		commande.save()
 		serializer = self.serializer_class(commande, many=False)
 		return Response(serializer.data, 201)

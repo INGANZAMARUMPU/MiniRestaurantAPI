@@ -1,7 +1,7 @@
 from .dependancies import *
 
 class RecetteViewset(viewsets.ModelViewSet):
-	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	authentication_classes = [JWTAuthentication, SessionAuthentication]
 	permission_classes = [IsAuthenticated]
 	queryset = Recette.objects.select_related("produit")
 	serializer_class = RecetteSerializer

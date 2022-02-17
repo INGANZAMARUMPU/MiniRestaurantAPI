@@ -76,4 +76,13 @@ class AchatAdmin(admin.ModelAdmin):
 
 	select_related = True
 
+@admin.register(Sortie)
+class SortieAdmin(admin.ModelAdmin):
+	list_display = "produit", "quantite", "user", "date"
+	list_filter = "produit", "quantite", "user", "date"
+	search_field = "produit", "quantite", "user", "date"
+	ordering = "produit", "quantite", "user", "date"
+
+	select_related = True
+
 admin.site.register(Table)

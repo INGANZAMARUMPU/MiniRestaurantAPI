@@ -23,18 +23,27 @@ class TableSerializer(serializers.ModelSerializer):
 		fields = "__all__"
 
 class AchatSerializer(serializers.ModelSerializer):
-	user = serializers.SerializerMethodField()
-
-	def get_user(self, obj):
-		return f"{obj.user.first_name} {obj.user.last_name}"
 
 	def to_representation(self, obj):
 		data = super().to_representation(obj)
 		data["produit"] = str(obj.produit)
+		data["user"] = f"{obj.user.first_name} {obj.user.last_name}"
 		return data
 
 	class Meta:
 		model = Achat
+		fields = "__all__"
+
+class SortieSerializer(serializers.ModelSerializer):
+
+	def to_representation(self, obj):
+		data = super().to_representation(obj)
+		data["produit"] = str(obj.produit)
+		data["user"] = f"{obj.user.first_name} {obj.user.last_name}"
+		return data
+
+	class Meta:
+		model = Sortie
 		fields = "__all__"
 
 class PaiementSerializer(serializers.ModelSerializer):

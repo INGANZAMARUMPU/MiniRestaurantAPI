@@ -1,7 +1,7 @@
 from .dependancies import *
 
 class StatisticViewset(viewsets.ViewSet):
-	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	authentication_classes = [JWTAuthentication, SessionAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	@action(methods=['GET'], detail=False,url_name="menu", url_path=r'menu')

@@ -1,7 +1,7 @@
 from .dependancies import *
 
 class ServeurViewset(viewsets.ModelViewSet):
-	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	authentication_classes = [JWTAuthentication, SessionAuthentication]
 	permission_classes = [IsAuthenticated]
 	queryset = Serveur.objects.all()
 	serializer_class = ServeurSerializer

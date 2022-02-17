@@ -4,6 +4,7 @@ from .ServeurViewset import ServeurViewset
 from .ClientViewset import ClientViewset
 from .TableViewset import TableViewset
 from .AchatViewset import AchatViewset
+from .SortieViewset import SortieViewset
 from .DetailCommandeViewset import DetailCommandeViewset
 from .PaiementViewset import PaiementViewset
 from .RecetteViewset import RecetteViewset
