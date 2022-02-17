@@ -10,6 +10,6 @@ from django.db import connection, transaction, IntegrityError
 from datetime import datetime, date, timedelta
 from typing import List
 import traceback, sys
-from .models import *
-from .serializers import *
+from ..models import *
+from ..serializers import *
 

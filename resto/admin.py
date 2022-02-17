@@ -42,15 +42,12 @@ class RecetteAdmin(admin.ModelAdmin):
 
 @admin.register(Commande)
 class CommandeAdmin(admin.ModelAdmin):
-	list_display = ("table", "serveur", "personnel", "date", "a_payer", "payee", "reste")
-	list_filter = ("table", "serveur", "personnel", "date", "payee", "reste")
-	search_field = ("table", "serveur", "personnel", "date", "a_payer", "payee", "reste")
-	ordering = ("table", "serveur", "personnel", "date", "payee", "reste")
+	list_display = ("table", "serveur", "user", "date", "a_payer", "payee")
+	list_filter = ("table", "serveur", "user", "date", "payee")
+	search_field = ("table", "serveur", "user", "date", "a_payer", "payee")
+	ordering = ("table", "serveur", "user", "date", "payee")
 
 	select_related = True
-
-	def a_payer(self, obj):
-		return obj.a_payer()
 
 @admin.register(Paiement)
 class PaiementAdmin(admin.ModelAdmin):
@@ -72,12 +69,11 @@ class DetailCommandeAdmin(admin.ModelAdmin):
 
 @admin.register(Achat)
 class AchatAdmin(admin.ModelAdmin):
-	list_display = "produit", "prix", "quantite", "personnel", "date"
-	list_filter = "produit", "prix", "quantite", "personnel", "date"
-	search_field = "produit", "prix", "quantite", "personnel", "date"
-	ordering = "produit", "prix", "quantite", "personnel", "date"
+	list_display = "produit", "prix", "quantite", "user", "date"
+	list_filter = "produit", "prix", "quantite", "user", "date"
+	search_field = "produit", "prix", "quantite", "user", "date"
+	ordering = "produit", "prix", "quantite", "user", "date"
 
 	select_related = True
 
 admin.site.register(Table)
-admin.site.register(PrixRecette)

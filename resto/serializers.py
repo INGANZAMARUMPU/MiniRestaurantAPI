@@ -97,5 +97,5 @@ class TokenPairSerializer(TokenObtainPairSerializer):
 		data = super(TokenPairSerializer, self).validate(attrs)
 		data['services'] = [group.name for group in self.user.groups.all()]
 		data['is_admin'] = self.user.is_superuser
-		data['id'] = self.user.user.id
+		data['id'] = self.user.id
 		return data
