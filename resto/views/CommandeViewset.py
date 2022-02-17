@@ -28,27 +28,33 @@ class CommandeViewset(viewsets.ModelViewSet):
 				client.nom = dict_client.get("nom")
 				client.save()
 		commande = Commande(
-			personnel = request.user.personnel,
+			user = request.user,
 			client = client,
 			serveur = Serveur.objects.get(id=data.get("serveur"))
 		)
 		commande.save()
 		details_commandes = []
+		prix = 0
 		for item in data.get("items"):
 			recette:Recette = Recette.objects.get(id=item.get("recette"))
 			produit:Produit = recette.produit
 			quantite = float(item.get("quantite"))
 			details = DetailCommande(
-				recette = recette, commande = commande, quantite = quantite
+				recette=recette, commande=commande, quantite=quantite,
+				somme = recette.prix*quantite
 			)
+			prix += details.somme
 			details_commandes.append(details)
 			if produit:
 				produit.quantite -= quantite
 				produit.save()
-		Commande.objects.bulk_create(details_commandes)
+		DetailCommande.objects.bulk_create(details_commandes)
 		payee = int(data.get("payee"))
 		if payee:
 			Paiement(commande=commande, somme=payee, validated=True).save()
+		commande.payee = payee
+		commande.prix = prix
+		commande.save()
 		serializer = self.serializer_class(commande, many=False)
 		return Response(serializer.data, 201)
 

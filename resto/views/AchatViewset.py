@@ -16,7 +16,7 @@ class AchatViewset(viewsets.ModelViewSet):
 				produit = Produit.objects.get(id=data["produit"]),
 				quantite = float(data["quantite"]),
 				prix = float(data["prix"]),
-				personnel = request.user.personnel
+				user = request.user
 			)
 			achat.save()
 			serializer = self.serializer_class(achat, many=False)

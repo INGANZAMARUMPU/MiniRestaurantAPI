@@ -76,7 +76,6 @@ class DetailCommandeSerializer(serializers.ModelSerializer):
 
 class CommandeSerializer(serializers.ModelSerializer):
 	details = DetailCommandeSerializer(many=True, read_only=True)
-	a_payer = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Commande
@@ -87,9 +86,6 @@ class CommandeSerializer(serializers.ModelSerializer):
 		representation['user'] = f"{obj.user.first_name} {obj.user.last_name}"
 		representation['serveur'] = str(obj.serveur)
 		return representation
-
-	def get_a_payer(self, obj):
-		return obj.a_payer()
 
 class TokenPairSerializer(TokenObtainPairSerializer):
 
