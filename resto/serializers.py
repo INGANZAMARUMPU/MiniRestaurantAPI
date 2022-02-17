@@ -23,10 +23,10 @@ class TableSerializer(serializers.ModelSerializer):
 		fields = "__all__"
 
 class AchatSerializer(serializers.ModelSerializer):
-	personnel = serializers.SerializerMethodField()
+	user = serializers.SerializerMethodField()
 
-	def get_personnel(self, obj):
-		return str(obj.personnel)
+	def get_user(self, obj):
+		return f"{obj.user.first_name} {obj.user.last_name}"
 
 	def to_representation(self, obj):
 		data = super().to_representation(obj)
@@ -52,7 +52,6 @@ class RecetteSerializer(serializers.ModelSerializer):
 
 	def get_disponible(self, obj):
 		if(obj.produit):
-			print(obj.produit)
 			return obj.produit.quantite > 0
 		return obj.disponible
 
@@ -85,7 +84,7 @@ class CommandeSerializer(serializers.ModelSerializer):
 
 	def to_representation(self, obj):
 		representation = super().to_representation(obj)
-		representation['personnel'] = str(obj.personnel)
+		representation['user'] = f"{obj.user.first_name} {obj.user.last_name}"
 		representation['serveur'] = str(obj.serveur)
 		return representation
 
@@ -93,22 +92,10 @@ class CommandeSerializer(serializers.ModelSerializer):
 		return obj.a_payer()
 
 class TokenPairSerializer(TokenObtainPairSerializer):
-	
-	# @classmethod
-	# def get_token(cls, user):
-	# 	token = super(TokenPairSerializer, cls).get_token(user)
-	# 	token['services'] = [group.name for group in user.groups.all()]
-	# 	try:
-	# 		token['username'] = user.username
-	# 		token['phone'] = user.profile.phone
-	# 		token['email'] = user.email
-	# 	except Exception as e:
-	# 		print(e)
-	# 	return token
 
 	def validate(self, attrs):
 		data = super(TokenPairSerializer, self).validate(attrs)
 		data['services'] = [group.name for group in self.user.groups.all()]
 		data['is_admin'] = self.user.is_superuser
-		data['id'] = self.user.personnel.id
+		data['id'] = self.user.user.id
 		return data
