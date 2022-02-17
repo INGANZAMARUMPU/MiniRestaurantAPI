@@ -31,6 +31,7 @@ class ServeurViewset(viewsets.ModelViewSet):
 	queryset = Serveur.objects.all()
 	serializer_class = ServeurSerializer
 
+	@transaction.atomic
 	def destroy(self, request, *args, **kwargs):
 		serveur = self.get_object()
 		serveur.is_active = False
@@ -55,6 +56,7 @@ class AchatViewset(viewsets.ModelViewSet):
 	queryset = Achat.objects.select_related("produit", "personnel")
 	serializer_class = AchatSerializer
 
+	@transaction.atomic
 	def create(self, request, *args, **kwargs):
 		serializer = self.get_serializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
@@ -91,6 +93,7 @@ class RecetteViewset(viewsets.ModelViewSet):
 	queryset = Recette.objects.select_related("produit")
 	serializer_class = RecetteSerializer
 
+	@transaction.atomic
 	def destroy(self, request, *args, **kwargs):
 		recette = self.get_object()
 		recette.is_active = False
@@ -112,6 +115,7 @@ class CommandeViewset(viewsets.ModelViewSet):
 			)
 		return super().list(request, *args, **kwargs)
 
+	@transaction.atomic
 	def create(self, request, *args, **kwargs):
 		data = request.data
 		try:
