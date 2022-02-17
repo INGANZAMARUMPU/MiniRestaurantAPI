@@ -49,7 +49,6 @@ class Achat(models.Model):
 	quantite = models.FloatField()
 	prix = models.FloatField()
 	date = models.DateTimeField(blank=True, default=timezone.now)
-	motif = models.CharField(max_length=64, blank=True, null=True)
 	user = models.ForeignKey(User, on_delete=models.PROTECT)
 
 	def __str__(self):
@@ -63,7 +62,7 @@ class Sortie(models.Model):
 	produit = models.ForeignKey(Produit, on_delete=models.CASCADE)
 	quantite = models.FloatField()
 	date = models.DateTimeField(blank=True, default=timezone.now)
-	motif = models.CharField(max_length=64, blank=True, null=True)
+	motif = models.CharField(max_length=64)
 	user = models.ForeignKey(User, on_delete=models.PROTECT)
 
 	def __str__(self):

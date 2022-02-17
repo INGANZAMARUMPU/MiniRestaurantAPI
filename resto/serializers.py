@@ -45,6 +45,7 @@ class SortieSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Sortie
 		fields = "__all__"
+		read_only_fields = "user", 
 
 class PaiementSerializer(serializers.ModelSerializer):
 	date = serializers.SerializerMethodField()
