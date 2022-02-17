@@ -18,37 +18,39 @@ class CommandeViewset(viewsets.ModelViewSet):
 	@transaction.atomic
 	def create(self, request, *args, **kwargs):
 		data = request.data
-		try:
-			with transaction.atomic():
-				dict_client = data.get("client")
-				client = None
-				if(dict_client and dict_client.get("tel")):
-					client, created = Client.objects.get_or_create(
-						tel = dict_client.get("tel")
-					)
-					if(not client.nom):
-						client.nom = dict_client.get("nom")
-						client.save()
-				commande = Commande(
-					personnel = request.user.personnel,
-					client = client,
-					serveur = Serveur.objects.get(id=data.get("serveur"))
-				)
-				commande.save()
-				for item in data.get("items"):
-					recette = Recette.objects.get(id=item.get("recette"))
-					DetailCommande(
-						recette = recette, commande = commande,
-						quantite=item.get("quantite")
-					).save()
-				payee = int(data.get("payee"))
-				if payee:
-					Paiement(commande=commande, somme=payee, validated=True).save()
-				serializer = self.serializer_class(commande, many=False)
-				return Response(serializer.data, 201)
-		except Exception:
-			traceback.print_exception(*sys.exc_info()) 
-			return Response({'status': 'Quelque chose d\'incorrect'}, 400)
+		dict_client = data.get("client")
+		client = None
+		if(dict_client and dict_client.get("tel")):
+			client, created = Client.objects.get_or_create(
+				tel = dict_client.get("tel")
+			)
+			if(not client.nom):
+				client.nom = dict_client.get("nom")
+				client.save()
+		commande = Commande(
+			personnel = request.user.personnel,
+			client = client,
+			serveur = Serveur.objects.get(id=data.get("serveur"))
+		)
+		commande.save()
+		details_commandes = []
+		for item in data.get("items"):
+			recette:Recette = Recette.objects.get(id=item.get("recette"))
+			produit:Produit = recette.produit
+			quantite = float(item.get("quantite"))
+			details = DetailCommande(
+				recette = recette, commande = commande, quantite = quantite
+			)
+			details_commandes.append(details)
+			if produit:
+				produit.quantite -= quantite
+				produit.save()
+		Commande.objects.bulk_create(details_commandes)
+		payee = int(data.get("payee"))
+		if payee:
+			Paiement(commande=commande, somme=payee, validated=True).save()
+		serializer = self.serializer_class(commande, many=False)
+		return Response(serializer.data, 201)
 
 	@transaction.atomic
 	def destroy(self, request, pk):

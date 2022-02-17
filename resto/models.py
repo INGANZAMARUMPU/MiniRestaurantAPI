@@ -45,7 +45,7 @@ class Produit(models.Model):
 
 class Achat(models.Model):
 	id = models.AutoField(primary_key=True)
-	produit = models.ForeignKey("Produit", on_delete=models.CASCADE)
+	produit = models.ForeignKey(Produit, on_delete=models.CASCADE)
 	quantite = models.FloatField()
 	prix = models.FloatField()
 	date = models.DateTimeField(blank=True, default=timezone.now)
@@ -85,21 +85,6 @@ class Recette(models.Model):
 	def __str__(self):
 		return f"{self.nom}"
 
-class DetailCommande(models.Model):
-	id = models.BigAutoField(primary_key=True)
-	commande = models.ForeignKey(Commande, null=True, on_delete=models.CASCADE,related_name='details')
-	recette = models.ForeignKey(Recette, null=True, on_delete=models.SET_NULL)
-	quantite = models.PositiveIntegerField(default=1)
-	somme = models.PositiveIntegerField(editable=False, blank=True, verbose_name='à payer')
-	date = models.DateTimeField(default=timezone.now)
-
-	class Meta:
-		unique_together = ('commande','recette')
-		ordering = ['date']
-			
-	def __str__(self):
-		return f"{self.recette}"
-
 class Client(models.Model):
 	id = models.AutoField(primary_key=True)
 	nom = models.CharField(verbose_name='nom', max_length=64)
@@ -117,9 +102,9 @@ class Commande(models.Model):
 	date = models.DateTimeField(blank=True, default=timezone.now)
 	a_payer = models.PositiveIntegerField(default=0, blank=True)
 	payee = models.PositiveIntegerField(default=0, blank=True)
-	serveur = models.ForeignKey("Serveur", null=True, on_delete=models.SET_NULL)
+	serveur = models.ForeignKey(Serveur, null=True, on_delete=models.SET_NULL)
 	user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-	client = models.ForeignKey("Client", null=True, on_delete=models.SET_NULL)
+	client = models.ForeignKey(Client, null=True, on_delete=models.SET_NULL)
 
 	class Meta:
 		ordering = ("-id", )
@@ -127,8 +112,23 @@ class Commande(models.Model):
 	def paniers(self):
 		return DetailCommande.objects.filter(commande=self)
 
+class DetailCommande(models.Model):
+	id = models.BigAutoField(primary_key=True)
+	commande = models.ForeignKey(Commande, null=True, on_delete=models.CASCADE,related_name='details')
+	recette = models.ForeignKey(Recette, null=True, on_delete=models.SET_NULL)
+	quantite = models.PositiveIntegerField(default=1)
+	somme = models.PositiveIntegerField(editable=False, blank=True, verbose_name='à payer')
+	date = models.DateTimeField(default=timezone.now)
+
+	class Meta:
+		unique_together = ('commande','recette')
+		ordering = ['date']
+			
+	def __str__(self):
+		return f"{self.recette}"
+
 class Paiement(models.Model):
 	id = models.BigAutoField(primary_key=True)
-	commande = models.ForeignKey("Commande", null=True, on_delete=models.SET_NULL)
+	commande = models.ForeignKey(Commande, null=True, on_delete=models.SET_NULL)
 	somme = models.PositiveIntegerField(verbose_name='somme payée', default=0)
 	date = models.DateField(blank=True, default=timezone.now)

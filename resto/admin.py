@@ -2,13 +2,6 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import *
 
-@admin.register(Personnel)
-class PersonnelAdmin(admin.ModelAdmin):
-	list_display = ("user", "tel", "avatar")
-	list_filter = ("user", "tel")
-	search_field = ("user", "tel")
-	ordering = ("user", "tel")
-
 @admin.register(Serveur)
 class ServeurAdmin(admin.ModelAdmin):
 	list_display = ("firstname", "lastname", "tel", "avatar")
