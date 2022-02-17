@@ -10,7 +10,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.db import connection, transaction, IntegrityError
 
 from datetime import datetime, date, timedelta
-
+from typing import List
 import traceback, sys
 
 from .models import *
@@ -149,6 +149,23 @@ class CommandeViewset(viewsets.ModelViewSet):
 		except Exception:
 			traceback.print_exception(*sys.exc_info()) 
 			return Response({'status': 'Quelque chose d\'incorrect'}, 400)
+
+	@transaction.atomic
+	def destroy(self, request, pk):
+		commande:Commande = self.get_object()
+		if(commande.payee > 0):
+			return Response({'status': 'la commande payee ne peut pas être supprimer'}, 403)
+
+		details:List[DetailCommande] = DetailCommande.objects.filter(commande=commande)
+		for d in details:
+			produit:Produit = d.recette.produit
+			if(produit):
+				produit.quantite += d.quantite
+				produit.save()
+		details.delete()
+		commande.delete()
+		return Response({'status': 'commande supprimée avec succes'}, 204)
+
 
 class StatisticViewset(viewsets.ViewSet):
 	authentication_classes = [SessionAuthentication, JWTAuthentication]
