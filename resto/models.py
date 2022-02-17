@@ -4,20 +4,6 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta, date
 
-class Personnel(models.Model):
-	id = models.AutoField(primary_key=True)
-	user = models.OneToOneField(User, null=True, on_delete=models.SET_NULL)
-	avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
-	tel = models.CharField(verbose_name='numero de télephone', max_length=24)
-
-	class Meta:
-		unique_together = ('tel', 'user')
-
-	def __str__(self):
-		string = self.user.first_name+self.user.last_name
-		string = string if string else self.user.username
-		return f"{string}"
-
 class Serveur(models.Model):
 	id = models.AutoField(primary_key=True)
 	firstname = models.CharField(verbose_name='nom', max_length=24)
@@ -42,7 +28,6 @@ class Table(models.Model):
 
 	class Meta:
 		unique_together = "nom", "number"
-			
 
 class Produit(models.Model):
 	id = models.AutoField(primary_key=True)
@@ -65,29 +50,27 @@ class Achat(models.Model):
 	prix = models.FloatField()
 	date = models.DateTimeField(blank=True, default=timezone.now)
 	motif = models.CharField(max_length=64, blank=True, null=True)
-	personnel = models.ForeignKey("Personnel", on_delete=models.PROTECT)
-
-	@transaction.atomic
-	def save(self, *args, **kwargs):
-		super(Achat, self).save(*args, **kwargs)
-		produit = self.produit
-		produit.quantite += self.quantite
-		produit.save() 
+	user = models.ForeignKey(User, on_delete=models.PROTECT)
 
 	def __str__(self):
-		return f"{self.date}:{self.produit} {self.quantite} {self.produit.unite}"
+		return f"{self.quantite} {self.produit.unite} de {self.produit} du {self.date}"
 
 	class Meta:
 		ordering = ["produit"]
 
-class PrixRecette(models.Model):
-	id = models.BigAutoField(primary_key=True)
-	recette = models.ForeignKey("Recette", null=True, on_delete=models.SET_NULL)
-	prix = models.PositiveIntegerField()
-	date = models.DateTimeField(default=timezone.now)
-	
+class Perte(models.Model):
+	id = models.AutoField(primary_key=True)
+	produit = models.ForeignKey(Produit, on_delete=models.CASCADE)
+	quantite = models.FloatField()
+	date = models.DateTimeField(blank=True, default=timezone.now)
+	motif = models.CharField(max_length=64, blank=True, null=True)
+	user = models.ForeignKey(User, on_delete=models.PROTECT)
+
 	def __str__(self):
-		return f"{self.recette.nom} à {self.prix}"
+		return f"{self.quantite} {self.produit.unite} de {self.produit} le {self.date}"
+
+	class Meta:
+		ordering = ["produit"]
 		
 class Recette(models.Model):
 	id = models.AutoField(primary_key=True)
@@ -96,35 +79,19 @@ class Recette(models.Model):
 	disponible = models.BooleanField(default=True)
 	details = models.URLField(null=True, blank=True)
 	prix = models.FloatField()
-	produit = models.ForeignKey("Produit", null=True, blank=True, on_delete=models.SET_NULL)
+	produit = models.ForeignKey(Produit, null=True, blank=True, on_delete=models.SET_NULL)
 	is_active = models.BooleanField(default=True)
 
 	def __str__(self):
 		return f"{self.nom}"
 
-	@transaction.atomic
-	def save(self, *args, **kwargs):
-		super(Recette, self).save(*args, **kwargs)
-		prix = PrixRecette.objects.filter(recette=self)
-		if(prix and prix.last().prix != self.prix):
-			PrixRecette(recette=self, prix=self.prix).save()
-
 class DetailCommande(models.Model):
 	id = models.BigAutoField(primary_key=True)
-	commande = models.ForeignKey("Commande", null=True, on_delete=models.CASCADE,related_name='details')
-	recette = models.ForeignKey("Recette", null=True, on_delete=models.SET_NULL)
+	commande = models.ForeignKey(Commande, null=True, on_delete=models.CASCADE,related_name='details')
+	recette = models.ForeignKey(Recette, null=True, on_delete=models.SET_NULL)
 	quantite = models.PositiveIntegerField(default=1)
 	somme = models.PositiveIntegerField(editable=False, blank=True, verbose_name='à payer')
 	date = models.DateTimeField(default=timezone.now)
-
-	@transaction.atomic
-	def save(self, *args, **kwargs):
-		self.somme = self.recette.prix * self.quantite
-		super(DetailCommande, self).save(*args, **kwargs)
-		produit = self.recette.produit
-		if produit:
-			produit.quantite -= self.quantite
-			produit.save()
 
 	class Meta:
 		unique_together = ('commande','recette')
@@ -148,41 +115,20 @@ class Commande(models.Model):
 	id = models.BigAutoField(primary_key=True)
 	table = models.ForeignKey(Table, default=1, on_delete=models.SET_DEFAULT)
 	date = models.DateTimeField(blank=True, default=timezone.now)
-	# a_payer = models.FloatField(default=0, blank=True)
-	payee = models.FloatField(default=0, blank=True)
-	reste = models.FloatField(editable=False, default=0, blank=True)
+	a_payer = models.PositiveIntegerField(default=0, blank=True)
+	payee = models.PositiveIntegerField(default=0, blank=True)
 	serveur = models.ForeignKey("Serveur", null=True, on_delete=models.SET_NULL)
-	personnel = models.ForeignKey("Personnel", null=True, on_delete=models.SET_NULL)
+	user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 	client = models.ForeignKey("Client", null=True, on_delete=models.SET_NULL)
 
 	class Meta:
 		ordering = ("-id", )
 
-	def save(self, *args, **kwargs):
-		self.reste = self.a_payer()-self.payee
-		super(Commande, self).save(*args, **kwargs)
-
 	def paniers(self):
 		return DetailCommande.objects.filter(commande=self)
-
-	def a_payer(self):
-		try:
-			return float(self.paniers().aggregate(Sum('somme'))["somme__sum"])
-		except Exception as e:
-			return 0
 
 class Paiement(models.Model):
 	id = models.BigAutoField(primary_key=True)
 	commande = models.ForeignKey("Commande", null=True, on_delete=models.SET_NULL)
 	somme = models.PositiveIntegerField(verbose_name='somme payée', default=0)
 	date = models.DateField(blank=True, default=timezone.now)
-
-	def save(self, *args, **kwargs):
-		commande = self.commande
-		super(Paiement, self).save(*args, **kwargs)
-		commande.payee += self.somme
-		commande.reste = commande.a_payer()-self.somme
-		if(commande.payee > commande.a_payer()):
-			commande.payee = commande.a_payer()
-			commande.reste = 0
-		commande.save()
