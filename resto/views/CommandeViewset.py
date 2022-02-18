@@ -74,3 +74,24 @@ class CommandeViewset(viewsets.ModelViewSet):
 		commande.delete()
 		return Response({'status': 'commande supprimée avec succes'}, 204)
 
+	@action(methods=['GET'], detail=False, url_name=r'stats', url_path=r"stats")
+	def statistiques(self, request):
+		queryset = self.filter_queryset(self.get_queryset())
+		stats = queryset.raw("""
+			SELECT
+				resto_commande.id ,
+				resto_serveur.id,
+				resto_serveur.firstname as nom,
+				resto_serveur.lastname as prenom,
+				COUNT(resto_commande.id) AS fois,
+				MIN(resto_commande.date) AS du,
+				MAX(resto_commande.date) AS au,
+				SUM(resto_commande.a_payer) AS prix,
+				SUM(resto_commande.payee) AS payee
+			FROM resto_commande, resto_serveur
+			WHERE resto_commande.serveur_id = resto_serveur.id
+			GROUP BY resto_commande.serveur_id
+			ORDER BY resto_commande.id DESC
+		""")
+		serializer = ServiceSerializer(stats, many=True)
+		return Response(serializer.data, 200)

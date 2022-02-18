@@ -98,6 +98,15 @@ class CommandeSerializer(serializers.ModelSerializer):
 		representation['serveur'] = str(obj.serveur)
 		return representation
 
+class ServiceSerializer(serializers.Serializer):
+	nom = serializers.CharField()
+	prenom = serializers.CharField()
+	fois = serializers.IntegerField()
+	du = serializers.DateTimeField()
+	au = serializers.DateTimeField()
+	prix = serializers.IntegerField()
+	payee = serializers.IntegerField()
+
 class TokenPairSerializer(TokenObtainPairSerializer):
 
 	def validate(self, attrs):
