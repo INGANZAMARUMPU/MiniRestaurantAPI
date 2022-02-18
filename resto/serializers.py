@@ -108,6 +108,7 @@ class ServiceSerializer(serializers.Serializer):
 	payee = serializers.IntegerField()
 
 class StatRecetteSerializer(serializers.Serializer):
+	id = serializers.IntegerField()
 	nom = serializers.CharField()
 	fois = serializers.IntegerField()
 	du = serializers.DateTimeField()
