@@ -102,4 +102,19 @@ class SortieAdmin(admin.ModelAdmin):
 
 	select_related = True
 
+	@transaction.atomic
+	def delete_queryset(self, request, queryset):
+		for sortie in queryset:
+			produit:Produit = sortie.produit
+			produit.quantite += sortie.quantite
+			produit.save()
+		queryset.delete()
+
+	@transaction.atomic
+	def delete_model(self, request, obj):
+		produit:Produit = obj.produit
+		produit.quantite += obj.quantite
+		produit.save()
+		obj.delete()
+
 admin.site.register(Table)

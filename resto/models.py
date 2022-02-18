@@ -35,7 +35,7 @@ class Produit(models.Model):
 	unite = models.CharField(max_length=64, verbose_name='unité de mesure')
 	unite_sortant = models.CharField(max_length=64, null=True,blank=True)
 	rapport = models.FloatField(default=1)
-	quantite = models.FloatField(default=0, editable=False)
+	quantite = models.PositiveIntegerField(default=0, editable=False)
 
 	def __str__(self):
 		return self.nom
