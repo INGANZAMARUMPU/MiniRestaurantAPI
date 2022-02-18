@@ -76,6 +76,23 @@ class AchatAdmin(admin.ModelAdmin):
 
 	select_related = True
 
+	@transaction.atomic
+	def delete_queryset(self, request, queryset):
+		for achat in queryset:
+			produit:Produit = achat.produit
+			if produit:
+				produit.quantite -= achat.quantite
+				produit.save()
+		queryset.delete()
+
+	@transaction.atomic
+	def delete_model(self, request, obj):
+		produit:Produit = obj.produit
+		if produit:
+			produit.quantite -= obj.quantite
+			produit.save()
+		obj.delete()
+
 @admin.register(Sortie)
 class SortieAdmin(admin.ModelAdmin):
 	list_display = "produit", "quantite", "user", "date"

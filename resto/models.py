@@ -74,7 +74,7 @@ class Sortie(models.Model):
 class Recette(models.Model):
 	id = models.AutoField(primary_key=True)
 	nom = models.CharField(max_length=64)
-	image = models.ImageField(upload_to="recettes/")
+	image = models.ImageField(upload_to="recettes/", null=True, blank=True)
 	disponible = models.BooleanField(default=True)
 	details = models.URLField(null=True, blank=True)
 	prix = models.FloatField()
