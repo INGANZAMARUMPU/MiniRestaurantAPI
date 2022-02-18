@@ -9,4 +9,3 @@ from .DetailCommandeViewset import DetailCommandeViewset
 from .PaiementViewset import PaiementViewset
 from .RecetteViewset import RecetteViewset
 from .CommandeViewset import CommandeViewset
-from .StatisticViewset import StatisticViewset

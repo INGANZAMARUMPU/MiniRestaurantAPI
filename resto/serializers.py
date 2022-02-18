@@ -33,6 +33,7 @@ class AchatSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Achat
 		fields = "__all__"
+		read_only_fields = "user", 
 
 class SortieSerializer(serializers.ModelSerializer):
 

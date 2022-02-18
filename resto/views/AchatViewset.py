@@ -3,7 +3,7 @@ from .dependancies import *
 class AchatViewset(viewsets.ModelViewSet):
 	authentication_classes = [JWTAuthentication, SessionAuthentication]
 	permission_classes = [IsAuthenticated]
-	queryset = Achat.objects.select_related("produit", "personnel")
+	queryset = Achat.objects.select_related("produit", "user")
 	serializer_class = AchatSerializer
 
 	@transaction.atomic
@@ -19,7 +19,7 @@ class AchatViewset(viewsets.ModelViewSet):
 		)
 		achat.save()
 		produit:Produit = achat.produit
-		produit.quantite -= achat.quantite
+		produit.quantite += achat.quantite
 		produit.save()
 		serializer = self.serializer_class(achat, many=False)
 		return Response(serializer.data, 201)

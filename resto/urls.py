@@ -15,7 +15,6 @@ router.register("paiement", PaiementViewset)
 router.register("recette", RecetteViewset)
 router.register("client", ClientViewset)
 router.register("commande", CommandeViewset)
-router.register("statistic", StatisticViewset, basename='stats')
 
 urlpatterns = [
 	path("", include(router.urls)),

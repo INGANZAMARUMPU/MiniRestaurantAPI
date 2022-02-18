@@ -5,15 +5,16 @@ class CommandeViewset(viewsets.ModelViewSet):
 	permission_classes = [IsAuthenticated]
 	queryset = Commande.objects.select_related("table", "serveur", "user")
 	serializer_class = CommandeSerializer
-
-	def list(self, request, *args, **kwargs):
-		params = request.query_params
-		unpaid = params.get("unpaid")
-		if(unpaid):
-			self.queryset = self.queryset.filter(
-				table__id=unpaid, reste__gt=0.
-			)
-		return super().list(request, *args, **kwargs)
+	filter_backends = [DjangoFilterBackend, SearchFilter]
+	search_fields = []
+	filterset_fields = {
+		'user': ['exact'],
+		'client__nom': ['icontains'],
+		'serveur': ['exact'],
+		'serveur__firstname': ['icontains'],
+		'serveur__lastname': ['icontains'],
+		'date': ['gte', 'lte', 'range'],
+	}
 
 	@transaction.atomic
 	def create(self, request, *args, **kwargs):
