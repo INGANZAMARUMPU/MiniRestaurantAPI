@@ -107,6 +107,14 @@ class ServiceSerializer(serializers.Serializer):
 	prix = serializers.IntegerField()
 	payee = serializers.IntegerField()
 
+class StatRecetteSerializer(serializers.Serializer):
+	nom = serializers.CharField()
+	fois = serializers.IntegerField()
+	du = serializers.DateTimeField()
+	au = serializers.DateTimeField()
+	quantite = serializers.IntegerField()
+	prix = serializers.IntegerField()
+
 class TokenPairSerializer(TokenObtainPairSerializer):
 
 	def validate(self, attrs):
