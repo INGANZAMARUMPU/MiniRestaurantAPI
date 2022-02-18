@@ -15,9 +15,8 @@ class DetailCommandeViewset(viewsets.ModelViewSet):
 
 	@action(methods=['GET'], detail=False, url_name=r'stats', url_path=r"stats")
 	def statistiques(self, request):
-		dates = request.GET.get("date__range")
 		date_req = ""
-		if dates:
+		if request.GET.get("date__range"):
 			dates = dates.split(",")
 			date_req = f"AND date BETWEEN '{dates[0]}' AND '{dates[1]}'"
 		queryset = self.get_queryset()
@@ -30,14 +29,13 @@ class DetailCommandeViewset(viewsets.ModelViewSet):
 				MAX(resto_detailcommande.date) AS au,
 				SUM(resto_detailcommande.quantite) AS quantite,
 				SUM(resto_detailcommande.somme) AS prix
-			FROM ({}) as resto_detailcommande, resto_recette
+			FROM resto_detailcommande, resto_recette
 			WHERE
 				resto_detailcommande.recette_id = resto_recette.id
 				{}
 			GROUP BY resto_detailcommande.recette_id
 			ORDER BY resto_detailcommande.somme DESC
-		""".format(str(queryset.query), date_req)
-		print(query)
+		""".format(date_req)
 		stats = queryset.raw(query)
 		serializer = StatRecetteSerializer(stats, many=True)
 		return Response(serializer.data, 200)

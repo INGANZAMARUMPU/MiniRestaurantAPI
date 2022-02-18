@@ -76,7 +76,12 @@ class CommandeViewset(viewsets.ModelViewSet):
 
 	@action(methods=['GET'], detail=False, url_name=r'stats', url_path=r"stats")
 	def statistiques(self, request):
-		queryset = self.filter_queryset(self.get_queryset())
+		dates = request.GET.get("date__range")
+		date_req = ""
+		if dates:
+			dates = dates.split(",")
+			date_req = f"AND date BETWEEN '{dates[0]}' AND '{dates[1]}'"
+		queryset = self.get_queryset()
 		stats = queryset.raw("""
 			SELECT
 				resto_commande.id ,
@@ -89,9 +94,11 @@ class CommandeViewset(viewsets.ModelViewSet):
 				SUM(resto_commande.a_payer) AS prix,
 				SUM(resto_commande.payee) AS payee
 			FROM resto_commande, resto_serveur
-			WHERE resto_commande.serveur_id = resto_serveur.id
+			WHERE
+				resto_commande.serveur_id = resto_serveur.id
+				{}
 			GROUP BY resto_commande.serveur_id
 			ORDER BY resto_commande.id DESC
-		""")
+		""".format(date_req))
 		serializer = ServiceSerializer(stats, many=True)
 		return Response(serializer.data, 200)
