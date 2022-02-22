@@ -13,11 +13,27 @@ recettes:List[Recette] = []
 with open("miami.csv", "r") as file:
 	for line in file.readlines():
 		line = line[:-1].split(";")
-		recettes.append(
-			Recette(
+		print(line)
+		if(line[2]):
+			produit = Produit(
+				nom = line[0],
+				unite = "bouteilles",
+				unite_sortant = "bouteilles",
+				rapport = 1,
+				quantite = line[2]
+			)
+			produit.save()
+			recette = Recette(
+				nom = line[0],
+				prix = line[1],
+				is_active = True,
+				produit = produit
+			)
+			recette.save()
+		else :
+			recette = Recette(
 				nom = line[0],
 				prix = line[1],
 				is_active = True
 			)
-		)
-	Recette.objects.bulk_create(recettes)
+			recette.save()

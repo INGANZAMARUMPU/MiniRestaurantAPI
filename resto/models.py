@@ -114,7 +114,7 @@ class Commande(models.Model):
 class DetailCommande(models.Model):
 	id = models.BigAutoField(primary_key=True)
 	commande = models.ForeignKey(Commande, null=True, on_delete=models.CASCADE,related_name='details')
-	recette = models.ForeignKey(Recette, null=True, on_delete=models.SET_NULL)
+	recette = models.ForeignKey(Recette, null=False, on_delete=models.PROTECT)
 	quantite = models.PositiveIntegerField(default=1)
 	somme = models.PositiveIntegerField(editable=False, blank=True, verbose_name='à payer')
 	date = models.DateTimeField(default=timezone.now)

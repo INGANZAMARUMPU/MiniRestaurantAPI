@@ -76,10 +76,14 @@ class DetailCommandeSerializer(serializers.ModelSerializer):
 	prix = serializers.SerializerMethodField()
 	
 	def get_nom(self, obj):
-		return obj.recette.nom
+		if(obj.recette):
+			return obj.recette.nom
+		return ""
 
 	def get_prix(self, obj):
-		return obj.recette.prix
+		if(obj.recette):
+			return obj.recette.prix
+		return ""
 
 	class Meta:
 		model = DetailCommande
