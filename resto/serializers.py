@@ -102,6 +102,10 @@ class CommandeSerializer(serializers.ModelSerializer):
 		representation['serveur'] = str(obj.serveur)
 		return representation
 
+class AddToCommandeSerializer(serializers.Serializer):
+	recette_id = serializers.IntegerField()
+	quantite = serializers.IntegerField()
+
 class ServiceSerializer(serializers.Serializer):
 	nom = serializers.CharField()
 	prenom = serializers.CharField()

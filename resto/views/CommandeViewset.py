@@ -74,6 +74,27 @@ class CommandeViewset(viewsets.ModelViewSet):
 		commande.delete()
 		return Response({'status': 'commande supprimée avec succes'}, 204)
 
+	@action(methods=['POST'], detail=True, url_name=r'ajouter', url_path=r"ajouter",
+		serializer_class=AddToCommandeSerializer)
+	def ajouter(self, request, pk):
+		commande = self.get_object()
+		details_serializer = self.get_serializer(data=request.data)
+		details_serializer.is_valid(raise_exception=True)
+		data = details_serializer.validated_data
+		recette = Recette.objects.get(id = data.get("recette_id"))
+		quantite = data.get("quantite")
+		details:DetailCommande = DetailCommande(
+			commande = commande,
+			recette = recette,
+			quantite = quantite,
+			somme = recette.prix*quantite
+		)
+		commande.a_payer += details.somme
+		details.save()
+		commande.save()
+		serializer = CommandeSerializer(commande)
+		return Response(serializer.data, 201)
+
 	@action(methods=['GET'], detail=False, url_name=r'stats', url_path=r"stats")
 	def statistiques(self, request):
 		dates = request.GET.get("date__range")
