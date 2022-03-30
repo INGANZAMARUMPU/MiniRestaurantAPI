@@ -74,6 +74,7 @@ class CommandeViewset(viewsets.ModelViewSet):
 		commande.delete()
 		return Response({'status': 'commande supprimée avec succes'}, 204)
 
+	@transaction.atomic
 	@action(methods=['POST'], detail=True, url_name=r'ajouter', url_path=r"ajouter",
 		serializer_class=AddToCommandeSerializer)
 	def ajouter(self, request, pk):
@@ -91,6 +92,18 @@ class CommandeViewset(viewsets.ModelViewSet):
 		)
 		commande.a_payer += details.somme
 		details.save()
+		commande.save()
+		serializer = CommandeSerializer(commande)
+		return Response(serializer.data, 201)
+
+	@transaction.atomic
+	@action(methods=['GET'], detail=True, url_name=r'enlever/(?P<details_id>\d+)',
+		url_path=r"enlever/(?P<details_id>\d+)",)
+	def enlever(self, request, pk, details_id):
+		commande = self.get_object()
+		details = DetailCommande.objects.get(id=details_id)
+		commande.a_payer -= details.somme
+		details.delete()
 		commande.save()
 		serializer = CommandeSerializer(commande)
 		return Response(serializer.data, 201)
