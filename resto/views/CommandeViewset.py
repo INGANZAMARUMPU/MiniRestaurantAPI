@@ -90,6 +90,10 @@ class CommandeViewset(viewsets.ModelViewSet):
 			quantite = quantite,
 			somme = recette.prix*quantite
 		)
+		produit:Produit = recette.produit
+		if produit:
+			produit.quantite -= quantite
+			produit.save()
 		commande.a_payer += details.somme
 		details.save()
 		commande.save()
@@ -103,6 +107,10 @@ class CommandeViewset(viewsets.ModelViewSet):
 		commande = self.get_object()
 		details = DetailCommande.objects.get(id=details_id)
 		commande.a_payer -= details.somme
+		produit:Produit = details.recette.produit
+		if produit:
+			produit.quantite -= details.quantite
+			produit.save()
 		details.delete()
 		commande.save()
 		serializer = CommandeSerializer(commande)
